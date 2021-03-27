@@ -1,3 +1,4 @@
+import { IPoint } from "./interfaces";
 import "./page-interface-generated";
 
 class Plotter {
@@ -22,8 +23,23 @@ class Plotter {
     }
 
     public initialize(): void {
-        this.context.fillStyle = "red";
+        this.context.fillStyle = "black";
         this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    }
+
+    public drawLine(points: IPoint[]): void {
+        if (points.length < 2) {
+            return;
+        }
+
+        this.context.strokeStyle = "#00FF00";
+        this.context.beginPath();
+        this.context.moveTo(points[0].x * this.cssPixel, points[0].y * this.cssPixel);
+        for (const point of points) {
+            this.context.lineTo(point.x * this.cssPixel, point.y * this.cssPixel);
+        }
+        this.context.stroke();
+        this.context.closePath();
     }
 }
 
