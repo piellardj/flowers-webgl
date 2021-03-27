@@ -17,7 +17,7 @@ function createRopeNode(x: number, y: number): IRopeNode {
 
 const GRAVITY = 1000;
 const DAMPENING = 0.99;
-const NB_ITERATIONS = 10;
+const NB_ITERATIONS = 20;
 
 class Rope {
     private readonly nodes: IRopeNode[];
@@ -47,12 +47,12 @@ class Rope {
         plotter.drawLine(points);
     }
 
-    public update(dt: number): void {
+    public update(dt: number, origin: IPoint = { x: 200, y: 200 }): void {
         this.applyForces();
         this.applyVerlet(dt);
 
         for (let i = 0; i < NB_ITERATIONS; i++) {
-            this.applyConstraints();
+            this.applyConstraints(origin);
         }
     }
 
@@ -78,10 +78,10 @@ class Rope {
         }
     }
 
-    private applyConstraints(): void {
+    private applyConstraints(origin: IPoint): void {
         const EPSILON = 0.000001;
-        this.nodes[0].pos.x = 200;
-        this.nodes[0].pos.y = 200;
+        this.nodes[0].pos.x = origin.x;
+        this.nodes[0].pos.y = origin.y;
 
         for (let iN = 1; iN < this.nodes.length; iN++) {
             const dX = this.nodes[iN].pos.x - this.nodes[iN - 1].pos.x;
