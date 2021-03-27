@@ -20,7 +20,6 @@ const DAMPENING = 0.99;
 const NB_ITERATIONS = 10;
 
 class Rope {
-    private static readonly dqsdq;
     private readonly nodes: IRopeNode[];
     private readonly segmentLength: number;
 
