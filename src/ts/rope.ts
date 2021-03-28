@@ -22,9 +22,11 @@ const NB_ITERATIONS = 20;
 class Rope {
     private readonly nodes: IRopeNode[];
     private readonly segmentLength: number;
+    private readonly totalLength: number;
 
-    public constructor(length: number, nbNodes: number) {
-        this.segmentLength = length;
+    public constructor(segmentLength: number, nbNodes: number) {
+        this.segmentLength = segmentLength;
+        this.totalLength = segmentLength * nbNodes;
 
         this.nodes = [];
 
@@ -33,18 +35,17 @@ class Rope {
         for (let iN = 0; iN < nbNodes; iN++) {
             const angle = 2 * Math.PI * Math.random();
             this.nodes.push(createRopeNode(
-                this.nodes[this.nodes.length - 1].pos.x + length * Math.cos(angle),
-                this.nodes[this.nodes.length - 1].pos.y + length * Math.sin(angle)
+                this.nodes[this.nodes.length - 1].pos.x + segmentLength * Math.cos(angle),
+                this.nodes[this.nodes.length - 1].pos.y + segmentLength * Math.sin(angle)
             ));
         }
     }
 
-    public draw(plotter: Plotter): void {
-        const points: IPoint[] = [];
-        for (const node of this.nodes) {
-            points.push(node.pos);
+    public draw(plotter: Plotter, minSegmentLength: number): void {
+        if (this.nodes.length >= 2) {
+            const points = this.computeLine(this.totalLength / minSegmentLength);
+            plotter.drawLine(points);
         }
-        plotter.drawLine(points);
     }
 
     public update(dt: number, origin: IPoint = { x: 200, y: 200 }): void {
@@ -96,6 +97,38 @@ class Rope {
             this.nodes[iN - 1].pos.x += correctionX;
             this.nodes[iN - 1].pos.y += correctionY;
         }
+    }
+
+    private computeLine(minimumPoints: number): IPoint[] {
+        let points: IPoint[] = [];
+        for (const node of this.nodes) {
+            points.push(node.pos);
+        }
+
+        while (points.length < minimumPoints) {
+            points = Rope.subdivideLine(points, 0.333);
+        }
+        return points;
+    }
+
+    // Chaikin
+    private static subdivideLine(sourcePoints: IPoint[], ratio: number): IPoint[] {
+        const newPoints: IPoint[] = [];
+        newPoints.push(sourcePoints[0]);
+
+        for (let iP = 0; iP < sourcePoints.length - 1; iP++) {
+            newPoints.push({
+                x: sourcePoints[iP].x * (1 - ratio) + sourcePoints[iP + 1].x * ratio,
+                y: sourcePoints[iP].y * (1 - ratio) + sourcePoints[iP + 1].y * ratio,
+            });
+            newPoints.push({
+                x: sourcePoints[iP].x * ratio + sourcePoints[iP + 1].x * (1 - ratio),
+                y: sourcePoints[iP].y * ratio + sourcePoints[iP + 1].y * (1 - ratio),
+            });
+        }
+
+        newPoints.push(sourcePoints[sourcePoints.length - 1]);
+        return newPoints;
     }
 }
 

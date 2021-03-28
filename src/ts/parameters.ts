@@ -19,7 +19,7 @@ class Parameters {
                 y: canvasSize[1] * mousePosition[1],
             };
         } else {
-             // handles a bug where mousePosition is empty when the page is initializing
+            // handles a bug where mousePosition is empty when the page is initializing
             return { x: 0, y: 0 };
         }
     }

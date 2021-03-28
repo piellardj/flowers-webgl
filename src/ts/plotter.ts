@@ -33,6 +33,7 @@ class Plotter {
         }
 
         this.context.strokeStyle = "#00FF00";
+        this.context.lineWidth = 2;
         this.context.beginPath();
         this.context.moveTo(points[0].x * this.cssPixel, points[0].y * this.cssPixel);
         for (const point of points) {

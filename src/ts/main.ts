@@ -6,7 +6,7 @@ import "./page-interface-generated";
 
 function main() {
     const plotter = new Plotter();
-    const rope = new Rope(20, 10);
+    const rope = new Rope(10, 40);
 
     let lastUpdate = performance.now();
     function mainLoop() {
@@ -17,7 +17,7 @@ function main() {
 
         plotter.adjustToCanvas();
         plotter.initialize();
-        rope.draw(plotter);
+        rope.draw(plotter, 3);
         requestAnimationFrame(mainLoop);
     }
 
