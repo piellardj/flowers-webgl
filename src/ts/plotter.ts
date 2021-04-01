@@ -23,7 +23,7 @@ class Plotter {
     }
 
     public initialize(): void {
-        this.context.fillStyle = "black";
+        this.context.fillStyle = "#ddf";
         this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
@@ -32,8 +32,8 @@ class Plotter {
             return;
         }
 
-        this.context.strokeStyle = "#00FF00";
-        this.context.lineWidth = 2 * this.cssPixel;
+        this.context.strokeStyle = "black";
+        this.context.lineWidth = 1 * this.cssPixel;
         this.context.beginPath();
         this.context.moveTo(points[0].x * this.cssPixel, points[0].y * this.cssPixel);
         for (const point of points) {
@@ -41,6 +41,13 @@ class Plotter {
         }
         this.context.stroke();
         this.context.closePath();
+    }
+
+    public drawEllipsis(center: IPoint, radiusX: number, radiusY: number, orientation: number, color: string): void {
+        this.context.fillStyle = color;
+        this.context.beginPath();
+        this.context.ellipse(center.x, center.y, radiusX, radiusY, orientation, 0, 2 * Math.PI);
+        this.context.fill();
     }
 }
 

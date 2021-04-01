@@ -1,3 +1,4 @@
+import { Flower } from "./flower";
 import { IPoint, IVector } from "./interfaces";
 import { Plotter } from "./plotter";
 
@@ -15,6 +16,10 @@ function createRopeNode(x: number, y: number): IRopeNode {
     };
 }
 
+function computeAngle(p1: IPoint, p2: IPoint): number {
+    return Math.atan2(p2.y - p1.y, p2.x - p1.x);
+}
+
 const GRAVITY = 1000;
 const DAMPENING = 0.99;
 const NB_ITERATIONS = 20;
@@ -24,9 +29,16 @@ class Rope {
     private readonly segmentLength: number;
     private readonly totalLength: number;
 
+    private readonly flower: Flower;
+
+    private t: number;
+
     public constructor(segmentLength: number, nbNodes: number) {
         this.segmentLength = segmentLength;
         this.totalLength = segmentLength * nbNodes;
+        this.t = 0;
+
+        this.flower = new Flower();
 
         this.nodes = [];
 
@@ -46,9 +58,14 @@ class Rope {
             const points = this.computeLine(this.totalLength / minSegmentLength);
             plotter.drawLine(points);
         }
+
+        const flowerAngle = 0;computeAngle(this.nodes[this.nodes.length - 2].pos, this.nodes[this.nodes.length - 1].pos);
+        this.flower.draw(plotter, this.nodes[this.nodes.length - 1].pos, flowerAngle);
     }
 
     public update(dt: number, origin: IPoint = { x: 200, y: 200 }): void {
+        this.t += dt;
+
         this.applyForces();
         this.applyVerlet(dt);
 
@@ -59,7 +76,15 @@ class Rope {
 
     private applyForces(): void {
         for (let iN = 1; iN < this.nodes.length; iN++) {
-            this.nodes[iN].acc.y = GRAVITY;
+            this.nodes[iN].acc.y = -0.002 * GRAVITY;
+        }
+
+        if (this.t > 1) {
+            const angle = Math.random() * 2 * Math.PI;
+            const intensity = GRAVITY;
+            this.nodes[this.nodes.length - 1].acc.x = (Math.cos(angle) + 0) * intensity;
+            this.nodes[this.nodes.length - 1].acc.y = (Math.sin(angle) - 0) * intensity;
+            this.t = this.t % 1;
         }
     }
 
