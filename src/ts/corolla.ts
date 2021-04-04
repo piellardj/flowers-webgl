@@ -1,4 +1,3 @@
-import { timeStamp } from "node:console";
 import { IPoint, IVector } from "./interfaces";
 import { PetalsManager } from "./petals-manager";
 import { Plotter } from "./plotter";
@@ -12,7 +11,7 @@ interface IPetal {
 
 function randomColor(): string {
     const random = Math.random() * 3;
-    const randomChannel = Math.floor(255 * (random % 1));
+    const randomChannel = Math.floor(0.5 * 255 * (random % 1));
 
     if (random < 1) {
         return `255, 0, ${255 - randomChannel}`;

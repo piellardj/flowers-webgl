@@ -1,5 +1,5 @@
 import { Corolla } from "./corolla";
-import { IPoint, IVector } from "./interfaces";
+import { IPoint } from "./interfaces";
 import { PetalsManager } from "./petals-manager";
 import { Plotter } from "./plotter";
 import { Rope } from "./rope";
@@ -29,7 +29,7 @@ class Flower {
     }
 
     public draw(plotter: Plotter): void {
-        this.stem.draw(plotter, 3);
+        this.stem.draw(plotter, 5);
         this.corolla.draw(plotter);
     }
 

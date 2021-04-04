@@ -1,10 +1,14 @@
 import { IPoint } from "./interfaces";
+
 import "./page-interface-generated";
 
 class Plotter {
     private readonly canvas: HTMLCanvasElement;
     private readonly context: CanvasRenderingContext2D;
     private readonly cssPixel: number;
+
+    private _width: number;
+    private _height: number;
 
     public constructor() {
         this.canvas = Page.Canvas.getCanvas();
@@ -20,6 +24,9 @@ class Plotter {
             this.canvas.width = actualWidth;
             this.canvas.height = actualHeight;
         }
+
+        this._width = this.canvas.clientWidth;
+        this._height = this.canvas.clientHeight;
     }
 
     public initialize(): void {
@@ -57,6 +64,14 @@ class Plotter {
         this.context.ellipse(center.x * this.cssPixel, center.y * this.cssPixel, radiusX * this.cssPixel, radiusY * this.cssPixel, orientation, 0, 2 * Math.PI);
         this.context.fill();
         this.context.closePath();
+    }
+
+    public get width(): number {
+        return this._width;
+    }
+
+    public get height(): number {
+        return this._height;
     }
 }
 
