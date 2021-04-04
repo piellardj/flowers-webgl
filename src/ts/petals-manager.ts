@@ -13,7 +13,7 @@ interface IColoredPetal extends IPetal {
 }
 
 class PetalsManager {
-    private readonly petals: IColoredPetal[];
+    private petals: IColoredPetal[];
 
     public constructor() {
         this.petals = [];
@@ -21,8 +21,13 @@ class PetalsManager {
 
     public update(dt: number): void {
         for (const petal of this.petals) {
-            petal.center.y -= 20 * dt;
         }
+
+        // remove out of screen petals
+        this.petals = this.petals.filter((candidate: IColoredPetal) => {
+            return candidate.center.y + Math.max(candidate.width, candidate.height) > -20;
+        });
+        console.log(this.petals.length);
     }
 
     public draw(plotter: Plotter): void {
