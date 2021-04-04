@@ -58,7 +58,10 @@ function main() {
         plotter.initialize();
         petalsManager.draw(plotter);
         for (const flower of flowers) {
-            flower.draw(plotter);
+            flower.drawStem(plotter);
+        }
+        for (const flower of flowers) {
+            flower.drawCorolla(plotter);
         }
 
         requestAnimationFrame(mainLoop);

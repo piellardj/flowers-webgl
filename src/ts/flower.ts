@@ -29,7 +29,15 @@ class Flower {
     }
 
     public draw(plotter: Plotter): void {
+        this.drawStem(plotter);
+        this.drawCorolla(plotter);
+    }
+
+    public drawStem(plotter: Plotter): void {
         this.stem.draw(plotter, 5);
+    }
+
+    public drawCorolla(plotter: Plotter): void {
         this.corolla.draw(plotter);
     }
 
