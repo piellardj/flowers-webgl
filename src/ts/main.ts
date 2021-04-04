@@ -5,17 +5,24 @@ import { Plotter } from "./plotter";
 import "./page-interface-generated";
 import { PetalsManager } from "./petals-manager";
 
+const FLOOR_LEVEL = 800;
+
+function createFlower(): Flower {
+    const attachPoint: IPoint = {
+        x: 800 * Math.random(),
+        y: FLOOR_LEVEL,
+    };
+    const flowerLength = 400 * (1 + (Math.random() - 0.5));
+    return new Flower(attachPoint, flowerLength);
+}
+
 function main() {
     const plotter = new Plotter();
 
     const flowers: Flower[] = [];
     for (let i = 0; i < 16; i++) {
-        const attachPoint: IPoint = {
-            x: 800 * Math.random(),
-            y: 800,
-        };
-        const flowerLength = 400 * (1 + (Math.random() - 0.5));
-        flowers.push(new Flower(attachPoint, flowerLength));
+        const newFlower = createFlower();
+        flowers.push(newFlower);
     }
 
     const petalsManager = new PetalsManager();
@@ -31,6 +38,12 @@ function main() {
             flower.update(dt, petalsManager);
         }
         petalsManager.update(dt);
+
+        for (let iF = 0; iF < flowers.length; iF++) {
+            if (flowers[iF].isDead(FLOOR_LEVEL)) {
+                flowers[iF] = createFlower();
+            }
+        }
 
         plotter.adjustToCanvas();
         plotter.initialize();

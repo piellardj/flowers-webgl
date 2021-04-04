@@ -64,6 +64,16 @@ class Rope {
         return this.nodes.length * this.nodeMass;
     }
 
+    public get highestPoint(): number {
+        let highest = 1000000;
+        for (const node of this.nodes) {
+            if (node.pos.y < highest) {
+                highest = node.pos.y;
+            }
+        }
+        return highest;
+    }
+
     private applyForces(endAcceleration: IVector): void {
         for (let iN = 1; iN < this.nodes.length; iN++) {
             this.nodes[iN].acc.y = this.nodeMass * GRAVITY;

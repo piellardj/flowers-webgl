@@ -60,6 +60,9 @@ class Corolla {
 
     public getAcceleration(): IVector {
         return { x: 0, y: -this.petals.length * 1000 };
+
+    public isDead(lowestAllowed: number): boolean {
+        return this.petals.length <= 0 && this.position.y > lowestAllowed + 50;
     }
 
     private drawPetals(plotter: Plotter): void {

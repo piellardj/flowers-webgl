@@ -35,6 +35,10 @@ class Flower {
         this.corolla.draw(plotter);
     }
 
+    public isDead(lowestAllowed: number): boolean {
+        return this.corolla.isDead(lowestAllowed) && this.stem.highestPoint >= lowestAllowed;
+    }
+
     private attachCorolla(): void {
         this.corolla.position.x = this.stem.endPosition.x;
         this.corolla.position.y = this.stem.endPosition.y;

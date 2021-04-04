@@ -23,7 +23,7 @@ class Plotter {
     }
 
     public initialize(): void {
-        this.context.fillStyle = "#ddf";
+        this.context.fillStyle = "#DCEEFF";
         this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
