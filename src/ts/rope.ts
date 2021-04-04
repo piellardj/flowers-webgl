@@ -35,7 +35,7 @@ class Rope {
             const angle = 2 * Math.PI * Math.random();
             this.nodes.push(createRopeNode(
                 this.nodes[this.nodes.length - 1].pos.x + segmentLength * Math.cos(angle),
-                this.nodes[this.nodes.length - 1].pos.y - Math.abs(segmentLength * Math.sin(angle))
+                this.nodes[this.nodes.length - 1].pos.y + Math.abs(segmentLength * Math.sin(angle))
             ));
         }
     }

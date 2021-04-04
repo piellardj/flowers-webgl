@@ -4,8 +4,6 @@ import { PetalsManager } from "./petals-manager";
 import { Plotter } from "./plotter";
 import { Rope } from "./rope";
 
-const GRAVITY = 100;
-
 class Flower {
     public static maxSegmentLength: number = 20;
 

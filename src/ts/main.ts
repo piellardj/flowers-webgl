@@ -5,14 +5,18 @@ import { Plotter } from "./plotter";
 import "./page-interface-generated";
 import { PetalsManager } from "./petals-manager";
 
-const FLOOR_LEVEL = 800;
+const FLOOR_LEVEL = 954;
 
 function createFlower(): Flower {
+    const canvasSize = Page.Canvas.getSize();
+
     const attachPoint: IPoint = {
-        x: 800 * Math.random(),
-        y: FLOOR_LEVEL,
+        x: canvasSize[0] * Math.random(),
+        y: canvasSize[1],
     };
-    const flowerLength = 400 * (1 + (Math.random() - 0.5));
+
+    const MIN_HEIGHT = 200;
+    const flowerLength = MIN_HEIGHT + 0.75 * Math.max(canvasSize[1] - MIN_HEIGHT, 0) * Math.random();
     return new Flower(attachPoint, flowerLength);
 }
 
@@ -20,7 +24,7 @@ function main() {
     const plotter = new Plotter();
 
     const flowers: Flower[] = [];
-    for (let i = 0; i < 16; i++) {
+    for (let i = 0; i < 64; i++) {
         const newFlower = createFlower();
         flowers.push(newFlower);
     }
@@ -31,7 +35,7 @@ function main() {
     let lastUpdate = performance.now();
     function mainLoop() {
         const now = performance.now();
-        const dt = Math.min(maxDt, 0.001 * (now - lastUpdate));
+        const dt = 0.5 * Math.min(maxDt, 0.001 * (now - lastUpdate));
         lastUpdate = now;
 
         for (const flower of flowers) {
@@ -39,8 +43,10 @@ function main() {
         }
         petalsManager.update(dt);
 
+        const canvasSize = Page.Canvas.getSize();
+
         for (let iF = 0; iF < flowers.length; iF++) {
-            if (flowers[iF].isDead(FLOOR_LEVEL)) {
+            if (flowers[iF].isDead(canvasSize[1])) {
                 flowers[iF] = createFlower();
             }
         }

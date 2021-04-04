@@ -33,6 +33,7 @@ class Plotter {
         }
 
         this.context.strokeStyle = "black";
+        this.context.fillStyle = "#DCEEFF";
         this.context.lineWidth = 1 * this.cssPixel;
         this.context.beginPath();
         this.context.moveTo(points[0].x * this.cssPixel, points[0].y * this.cssPixel);
@@ -41,6 +42,7 @@ class Plotter {
         }
 
         if (closed) {
+            this.context.fill();
             this.context.closePath();
             this.context.stroke();
         } else {
@@ -54,6 +56,7 @@ class Plotter {
         this.context.beginPath();
         this.context.ellipse(center.x * this.cssPixel, center.y * this.cssPixel, radiusX * this.cssPixel, radiusY * this.cssPixel, orientation, 0, 2 * Math.PI);
         this.context.fill();
+        this.context.closePath();
     }
 }
 

@@ -1,3 +1,4 @@
+import { timeStamp } from "node:console";
 import { IPoint, IVector } from "./interfaces";
 import { PetalsManager } from "./petals-manager";
 import { Plotter } from "./plotter";
@@ -28,6 +29,13 @@ function randomColor(): string {
     }
 }
 
+function noise(): IVector {
+    return {
+        x: 5000 * (Math.random() - 0.5),
+        y: 100 * (Math.random() - 0.5),
+    };
+}
+
 const PETALS_DROP_RATE = 0.1;
 
 class Corolla {
@@ -37,11 +45,21 @@ class Corolla {
 
     public readonly position: IPoint;
 
+    public noisePeriod: number;
+    public noiseTime: number;
+    public lastNoise: IVector;
+    public nextNoise: IVector;
+
     public constructor() {
-        this.color = `rgba(${randomColor()}, 0.1)`;
+        this.color = `rgba(${randomColor()}, 0.2)`;
         this.petals = Corolla.computePetals(8);
         this.outline = Corolla.computeOutline(40, 20);
         this.position = { x: 0, y: 0 };
+
+        this.noisePeriod = 1 + Math.random();
+        this.noiseTime = this.noisePeriod + 1;
+        this.lastNoise = noise();
+        this.nextNoise = noise();
     }
 
     public update(dt: number, petalsManager: PetalsManager): void {
@@ -51,15 +69,32 @@ class Corolla {
             newFreePetal.center.y = this.position.y;
             petalsManager.registerFreePetal(newFreePetal, this.color);
         }
+
+        this.noiseTime += dt;
+        if (this.noiseTime > this.noisePeriod) {
+            this.lastNoise = this.nextNoise;
+            this.nextNoise = noise();
+            this.noiseTime = this.noiseTime % this.noisePeriod;
+        }
     }
 
     public draw(plotter: Plotter): void {
-        this.drawPetals(plotter);
         this.drawOutline(plotter);
+        this.drawPetals(plotter);
     }
 
     public getAcceleration(): IVector {
-        return { x: 0, y: -this.petals.length * 1000 };
+        const DOWNWARD_FORCE = 10000;
+        const UPWARD_FORCE = [7000, 10000, 11000, 12000];
+
+        const r = this.noiseTime / this.noisePeriod;
+        const noiseX = this.lastNoise.x * (1 - r) + this.nextNoise.x * r;
+        const noiseY = this.lastNoise.y * (1 - r) + this.nextNoise.y * r;
+        return {
+            x: noiseX * Math.min(1, this.petals.length / 16),
+            y: DOWNWARD_FORCE - UPWARD_FORCE[Math.min(UPWARD_FORCE.length - 1, this.petals.length)] + noiseY,
+        };
+    }
 
     public isDead(lowestAllowed: number): boolean {
         return this.petals.length <= 0 && this.position.y > lowestAllowed + 50;
@@ -93,7 +128,7 @@ class Corolla {
 
         for (let i = 0; i < nbPetals; i++) {
             const proportions = 0.3 + 0.4 * Math.random();
-            const radiusX = 40 + 30 * Math.random();
+            const radiusX = 20 + 20 * Math.random();
             const radiusY = proportions * radiusX;
             const orientation = 2 * Math.PI * Math.random();
             const distanceToCenter = 0;// (0.2 + 0.3 * Math.random()) * radiusX;
