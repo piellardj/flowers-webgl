@@ -52,7 +52,7 @@ class Plotter {
     public drawEllipsis(center: IPoint, radiusX: number, radiusY: number, orientation: number, color: string): void {
         this.context.fillStyle = color;
         this.context.beginPath();
-        this.context.ellipse(center.x, center.y, radiusX, radiusY, orientation, 0, 2 * Math.PI);
+        this.context.ellipse(center.x * this.cssPixel, center.y * this.cssPixel, radiusX * this.cssPixel, radiusY * this.cssPixel, orientation, 0, 2 * Math.PI);
         this.context.fill();
     }
 }
