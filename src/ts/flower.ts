@@ -17,7 +17,7 @@ class Flower {
         this.attachPoint = attachPoint;
 
         const nbNodes = Math.max(length / Flower.maxSegmentLength);
-        this.stem = new Rope(length / nbNodes, nbNodes);
+        this.stem = new Rope(attachPoint, length / nbNodes, nbNodes);
 
         this.corolla = new Corolla();
         this.attachCorolla();

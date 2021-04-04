@@ -25,12 +25,12 @@ class Rope {
     private readonly segmentLength: number;
     private readonly totalLength: number;
 
-    public constructor(segmentLength: number, nbNodes: number) {
+    public constructor(startingPoint: IPoint, segmentLength: number, nbNodes: number) {
         this.segmentLength = segmentLength;
         this.totalLength = segmentLength * nbNodes;
 
         this.nodes = [];
-        this.nodes.push(createRopeNode(200, 200));
+        this.nodes.push(createRopeNode(startingPoint.x, startingPoint.y));
         for (let iN = 0; iN < nbNodes; iN++) {
             const angle = 2 * Math.PI * Math.random();
             this.nodes.push(createRopeNode(
@@ -76,7 +76,8 @@ class Rope {
 
     private applyForces(endAcceleration: IVector): void {
         for (let iN = 1; iN < this.nodes.length; iN++) {
-            this.nodes[iN].acc.y = this.nodeMass * GRAVITY;
+            this.nodes[iN].acc.x = 0;
+            this.nodes[iN].acc.y = 0;// this.nodeMass * GRAVITY;
         }
 
         this.nodes[this.nodes.length - 1].acc.x += endAcceleration.x;
