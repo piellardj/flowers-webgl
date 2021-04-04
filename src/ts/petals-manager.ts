@@ -43,7 +43,7 @@ class PetalsManager {
         const coloredPetal = petal as IFloatingPetal;
         coloredPetal.color = color;
         coloredPetal.petalArea = coloredPetal.width * coloredPetal.height;
-        coloredPetal.rotationSpeed = Math.random() - 0.5;
+        coloredPetal.rotationSpeed = 2 * (Math.random() - 0.5);
         this.petals.push(coloredPetal);
     }
 }
