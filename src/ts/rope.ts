@@ -65,7 +65,7 @@ class Rope {
     }
 
     private applyForces(endAcceleration: IVector): void {
-        for (let iN = 1; iN < this.nodes.length - 2; iN++) {
+        for (let iN = 1; iN < this.nodes.length; iN++) {
             this.nodes[iN].acc.y = this.nodeMass * GRAVITY;
         }
 

@@ -1,4 +1,5 @@
 import { IPoint, IVector } from "./interfaces";
+import { PetalsManager } from "./petals-manager";
 import { Plotter } from "./plotter";
 
 interface IPetal {
@@ -27,6 +28,8 @@ function randomColor(): string {
     }
 }
 
+const PETALS_DROP_RATE = 0.1;
+
 class Corolla {
     private readonly color: string;
     private readonly petals: IPetal[];
@@ -41,13 +44,22 @@ class Corolla {
         this.position = { x: 0, y: 0 };
     }
 
+    public update(dt: number, petalsManager: PetalsManager): void {
+        if (this.petals.length > 0 && Math.random() < PETALS_DROP_RATE * dt) {
+            const newFreePetal = this.petals.pop();
+            newFreePetal.center.x = this.position.x;
+            newFreePetal.center.y = this.position.y;
+            petalsManager.registerFreePetal(newFreePetal, this.color);
+        }
+    }
+
     public draw(plotter: Plotter): void {
         this.drawPetals(plotter);
         this.drawOutline(plotter);
     }
 
     public getAcceleration(): IVector {
-        return { x: 0, y: -1 };
+        return { x: 0, y: -this.petals.length * 1000 };
     }
 
     private drawPetals(plotter: Plotter): void {

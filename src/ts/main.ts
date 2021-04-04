@@ -3,6 +3,7 @@ import { IPoint } from "./interfaces";
 import { Plotter } from "./plotter";
 
 import "./page-interface-generated";
+import { PetalsManager } from "./petals-manager";
 
 function main() {
     const plotter = new Plotter();
@@ -17,6 +18,8 @@ function main() {
         flowers.push(new Flower(attachPoint, flowerLength));
     }
 
+    const petalsManager = new PetalsManager();
+
     const maxDt = 1 / 60;
     let lastUpdate = performance.now();
     function mainLoop() {
@@ -25,11 +28,13 @@ function main() {
         lastUpdate = now;
 
         for (const flower of flowers) {
-            flower.update(dt);
+            flower.update(dt, petalsManager);
         }
+        petalsManager.update(dt);
 
         plotter.adjustToCanvas();
         plotter.initialize();
+        petalsManager.draw(plotter);
         for (const flower of flowers) {
             flower.draw(plotter);
         }
