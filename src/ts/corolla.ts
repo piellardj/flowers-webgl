@@ -111,15 +111,7 @@ class Corolla {
     }
 
     private drawOutline(plotter: Plotter): void {
-        const points: IPoint[] = [];
-        for (const outlinePoint of this.outline) {
-            points.push({
-                x: this.position.x + outlinePoint.x,
-                y: this.position.y + outlinePoint.y,
-            })
-        }
-
-        plotter.drawLine(points, true);
+        plotter.drawPolygon(this.outline, this.position, "black", plotter.backgroundColor);
     }
 
     private static computePetals(nbPetals: number): IPetal[] {
@@ -162,3 +154,4 @@ class Corolla {
 }
 
 export { Corolla };
+

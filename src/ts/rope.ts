@@ -1,5 +1,5 @@
 import { IPoint, IVector } from "./interfaces";
-import { Plotter } from "./plotter";
+import { Line, Plotter } from "./plotter";
 
 interface IRopeNode {
     pos: IPoint;
@@ -15,12 +15,10 @@ function createRopeNode(x: number, y: number): IRopeNode {
     };
 }
 
-const GRAVITY = 100;
 const DAMPENING = 0.99;
 const NB_ITERATIONS = 20;
 
 class Rope {
-    private readonly nodeMass: number = 1;
     private readonly nodes: IRopeNode[];
     private readonly segmentLength: number;
     private readonly totalLength: number;
@@ -40,11 +38,8 @@ class Rope {
         }
     }
 
-    public draw(plotter: Plotter, minSegmentLength: number): void {
-        if (this.nodes.length >= 2) {
-            const points = this.computeSmoothLine(this.totalLength / minSegmentLength);
-            plotter.drawLine(points);
-        }
+    public getDrawableLine(minSegmentLength: number): Line {
+        return this.computeSmoothLine(this.totalLength / minSegmentLength);
     }
 
     public update(dt: number, origin: IPoint, endAcceleration: IVector): void {
@@ -60,10 +55,6 @@ class Rope {
         return this.nodes[this.nodes.length - 1].pos;
     }
 
-    public get totalMass(): number {
-        return this.nodes.length * this.nodeMass;
-    }
-
     public get highestPoint(): number {
         let highest = 1000000;
         for (const node of this.nodes) {
@@ -77,7 +68,7 @@ class Rope {
     private applyForces(endAcceleration: IVector): void {
         for (let iN = 1; iN < this.nodes.length; iN++) {
             this.nodes[iN].acc.x = 0;
-            this.nodes[iN].acc.y = 0;// this.nodeMass * GRAVITY;
+            this.nodes[iN].acc.y = 0;
         }
 
         this.nodes[this.nodes.length - 1].acc.x += endAcceleration.x;

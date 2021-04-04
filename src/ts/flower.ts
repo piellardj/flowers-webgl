@@ -1,7 +1,7 @@
 import { Corolla } from "./corolla";
 import { IPoint } from "./interfaces";
 import { PetalsManager } from "./petals-manager";
-import { Plotter } from "./plotter";
+import { Line, Plotter } from "./plotter";
 import { Rope } from "./rope";
 
 class Flower {
@@ -28,13 +28,8 @@ class Flower {
         this.attachCorolla();
     }
 
-    public draw(plotter: Plotter): void {
-        this.drawStem(plotter);
-        this.drawCorolla(plotter);
-    }
-
-    public drawStem(plotter: Plotter): void {
-        this.stem.draw(plotter, 5);
+    public getDrawableStem(): Line {
+        return this.stem.getDrawableLine(5);
     }
 
     public drawCorolla(plotter: Plotter): void {

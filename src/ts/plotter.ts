@@ -2,7 +2,11 @@ import { IPoint } from "./interfaces";
 
 import "./page-interface-generated";
 
+type Line = IPoint[];
+
 class Plotter {
+    public backgroundColor: string = "#DCEEFF";
+
     private readonly canvas: HTMLCanvasElement;
     private readonly context: CanvasRenderingContext2D;
     private readonly cssPixel: number;
@@ -30,32 +34,50 @@ class Plotter {
     }
 
     public initialize(): void {
-        this.context.fillStyle = "#DCEEFF";
+        this.context.fillStyle = this.backgroundColor;
         this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
-    public drawLine(points: IPoint[], closed: boolean = false): void {
-        if (points.length < 2) {
-            return;
-        }
+    public drawLines(lines: Line[], color: string): void {
+        if (lines.length >= 1) {
+            this.context.strokeStyle = color;
+            this.context.lineWidth = 1; // do not adapt with cssPixel for performance reasons on mobile devices
 
-        this.context.strokeStyle = "black";
-        this.context.fillStyle = "#DCEEFF";
-        this.context.lineWidth = 1 * this.cssPixel;
+            this.context.beginPath();
+
+            for (const line of lines) {
+                if (line.length >= 2) {
+                    this.context.moveTo(line[0].x * this.cssPixel, line[0].y * this.cssPixel);
+                    for (let iP = 1; iP < line.length; iP++) {
+                        this.context.lineTo(line[iP].x * this.cssPixel, line[iP].y * this.cssPixel);
+                    }
+                }
+            }
+
+            this.context.stroke();
+            this.context.closePath();
+        }
+    }
+
+    public drawPolygon(polygon: Line, offset: IPoint, strokeColor: string, fillColor: string): void {
+        this.context.strokeStyle = strokeColor;
+        this.context.fillStyle = fillColor;
+        this.context.lineWidth = 1; // do not adapt with cssPixel for performance reasons on mobile devices
+
         this.context.beginPath();
-        this.context.moveTo(points[0].x * this.cssPixel, points[0].y * this.cssPixel);
-        for (const point of points) {
-            this.context.lineTo(point.x * this.cssPixel, point.y * this.cssPixel);
+
+        if (polygon.length >= 2) {
+            this.context.moveTo((polygon[0].x + offset.x) * this.cssPixel, (polygon[0].y + offset.y) * this.cssPixel);
+
+            for (let iP = 1; iP < polygon.length; iP++) {
+                this.context.lineTo((polygon[iP].x + offset.x) * this.cssPixel, (polygon[iP].y + offset.y) * this.cssPixel);
+            }
+
+            this.context.fill();
+            this.context.stroke();
         }
 
-        if (closed) {
-            this.context.fill();
-            this.context.closePath();
-            this.context.stroke();
-        } else {
-            this.context.stroke();
-            this.context.closePath();
-        }
+        this.context.closePath();
     }
 
     public drawEllipsis(center: IPoint, radiusX: number, radiusY: number, orientation: number, color: string): void {
@@ -75,4 +97,7 @@ class Plotter {
     }
 }
 
-export { Plotter };
+export {
+    Line,
+    Plotter,
+};
