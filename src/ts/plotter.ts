@@ -27,7 +27,7 @@ class Plotter {
         this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
-    public drawLine(points: IPoint[]): void {
+    public drawLine(points: IPoint[], closed: boolean = false): void {
         if (points.length < 2) {
             return;
         }
@@ -39,8 +39,14 @@ class Plotter {
         for (const point of points) {
             this.context.lineTo(point.x * this.cssPixel, point.y * this.cssPixel);
         }
-        this.context.stroke();
-        this.context.closePath();
+
+        if (closed) {
+            this.context.closePath();
+            this.context.stroke();
+        } else {
+            this.context.stroke();
+            this.context.closePath();
+        }
     }
 
     public drawEllipsis(center: IPoint, radiusX: number, radiusY: number, orientation: number, color: string): void {
