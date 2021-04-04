@@ -1,4 +1,3 @@
-import { Flower } from "./flower";
 import { IPoint, IVector } from "./interfaces";
 import { Plotter } from "./plotter";
 
@@ -16,57 +15,40 @@ function createRopeNode(x: number, y: number): IRopeNode {
     };
 }
 
-function computeAngle(p1: IPoint, p2: IPoint): number {
-    return Math.atan2(p2.y - p1.y, p2.x - p1.x);
-}
-
-const GRAVITY = 1000;
+const GRAVITY = 100;
 const DAMPENING = 0.99;
 const NB_ITERATIONS = 20;
 
 class Rope {
+    private readonly nodeMass: number = 1;
     private readonly nodes: IRopeNode[];
     private readonly segmentLength: number;
     private readonly totalLength: number;
 
-    private readonly flower: Flower;
-
-    private t: number;
-
     public constructor(segmentLength: number, nbNodes: number) {
         this.segmentLength = segmentLength;
         this.totalLength = segmentLength * nbNodes;
-        this.t = 0;
-
-        this.flower = new Flower();
 
         this.nodes = [];
-
         this.nodes.push(createRopeNode(200, 200));
-
         for (let iN = 0; iN < nbNodes; iN++) {
             const angle = 2 * Math.PI * Math.random();
             this.nodes.push(createRopeNode(
                 this.nodes[this.nodes.length - 1].pos.x + segmentLength * Math.cos(angle),
-                this.nodes[this.nodes.length - 1].pos.y + segmentLength * Math.sin(angle)
+                this.nodes[this.nodes.length - 1].pos.y - Math.abs(segmentLength * Math.sin(angle))
             ));
         }
     }
 
     public draw(plotter: Plotter, minSegmentLength: number): void {
         if (this.nodes.length >= 2) {
-            const points = this.computeLine(this.totalLength / minSegmentLength);
+            const points = this.computeSmoothLine(this.totalLength / minSegmentLength);
             plotter.drawLine(points);
         }
-
-        const flowerAngle = 0;computeAngle(this.nodes[this.nodes.length - 2].pos, this.nodes[this.nodes.length - 1].pos);
-        this.flower.draw(plotter, this.nodes[this.nodes.length - 1].pos, flowerAngle);
     }
 
-    public update(dt: number, origin: IPoint = { x: 200, y: 200 }): void {
-        this.t += dt;
-
-        this.applyForces();
+    public update(dt: number, origin: IPoint, endAcceleration: IVector): void {
+        this.applyForces(endAcceleration);
         this.applyVerlet(dt);
 
         for (let i = 0; i < NB_ITERATIONS; i++) {
@@ -74,18 +56,21 @@ class Rope {
         }
     }
 
-    private applyForces(): void {
-        for (let iN = 1; iN < this.nodes.length; iN++) {
-            this.nodes[iN].acc.y = -0.002 * GRAVITY;
+    public get endPosition(): IPoint {
+        return this.nodes[this.nodes.length - 1].pos;
+    }
+
+    public get totalMass(): number {
+        return this.nodes.length * this.nodeMass;
+    }
+
+    private applyForces(endAcceleration: IVector): void {
+        for (let iN = 1; iN < this.nodes.length - 2; iN++) {
+            this.nodes[iN].acc.y = this.nodeMass * GRAVITY;
         }
 
-        if (this.t > 1) {
-            const angle = Math.random() * 2 * Math.PI;
-            const intensity = GRAVITY;
-            this.nodes[this.nodes.length - 1].acc.x = (Math.cos(angle) + 0) * intensity;
-            this.nodes[this.nodes.length - 1].acc.y = (Math.sin(angle) - 0) * intensity;
-            this.t = this.t % 1;
-        }
+        this.nodes[this.nodes.length - 1].acc.x += endAcceleration.x;
+        this.nodes[this.nodes.length - 1].acc.y += endAcceleration.y;
     }
 
     private applyVerlet(dt: number): void {
@@ -124,7 +109,7 @@ class Rope {
         }
     }
 
-    private computeLine(minimumPoints: number): IPoint[] {
+    private computeSmoothLine(minimumPoints: number): IPoint[] {
         let points: IPoint[] = [];
         for (const node of this.nodes) {
             points.push(node.pos);

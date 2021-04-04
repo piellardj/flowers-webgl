@@ -1,28 +1,20 @@
-import { Parameters } from "./parameters";
-import { Plotter } from "./plotter";
-import { Rope } from "./rope";
+import { Flower } from "./flower";
 import { IPoint } from "./interfaces";
+import { Plotter } from "./plotter";
 
 import "./page-interface-generated";
-
-interface IFlower {
-    rope: Rope;
-    attachPoint: IPoint;
-}
 
 function main() {
     const plotter = new Plotter();
 
-    // const rope = new Rope(40, 10);
-    const flowers: IFlower[] = [];
+    const flowers: Flower[] = [];
     for (let i = 0; i < 16; i++) {
-        flowers.push({
-            rope: new Rope(10 + 40 * Math.random(), 20),
-            attachPoint: {
-                x: 800 * Math.random(),
-                y: 800,
-            },
-        });
+        const attachPoint: IPoint = {
+            x: 800 * Math.random(),
+            y: 800,
+        };
+        const flowerLength = 400 * (1 + (Math.random() - 0.5));
+        flowers.push(new Flower(attachPoint, flowerLength));
     }
 
     const maxDt = 1 / 60;
@@ -32,17 +24,14 @@ function main() {
         const dt = Math.min(maxDt, 0.001 * (now - lastUpdate));
         lastUpdate = now;
 
-        // rope.update(dt, Parameters.mousePositionInPixels);
         for (const flower of flowers) {
-            flower.rope.update(dt, flower.attachPoint);
+            flower.update(dt);
         }
 
         plotter.adjustToCanvas();
         plotter.initialize();
-
-        // rope.draw(plotter, 3);
         for (const flower of flowers) {
-            flower.rope.draw(plotter, 3);
+            flower.draw(plotter);
         }
 
         requestAnimationFrame(mainLoop);
