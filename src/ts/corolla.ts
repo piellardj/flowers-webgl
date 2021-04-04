@@ -115,7 +115,7 @@ class Corolla {
         const result: IPoint[] = [];
 
         for (let i = 0; i < outlineNbPoints; i++) {
-            const angle = 2 * Math.PI * i / (outlineNbPoints - 1) * (1 + 0.1 * Math.random());
+            const angle = 2 * Math.PI * i / (outlineNbPoints - 1);
             const radius = outlineRadius * (1 + 0.3 * Math.random());
             result.push({
                 x: radius * Math.cos(angle),// + 5 * Math.random(),
