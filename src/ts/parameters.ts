@@ -7,6 +7,7 @@ const controlId = {
     FLOWERS_RANGE: "flowers-range-id",
     WIND_RANGE: "wind-range-id",
     SPEED_RANGE: "speed-range-id",
+    DAMPENING_RANGE: "dampening-range-id",
     RESET_BUTTON: "reset-button-id",
     BACKGROUND_COLORPICKER: "background-color-id",
     LINES_COLORPICKER: "lines-color-id",
@@ -56,6 +57,10 @@ class Parameters {
 
     public static get speed(): number {
         return Page.Range.getValue(controlId.SPEED_RANGE);
+    }
+
+    public static get dampening(): number {
+        return 1 - 0.01 * Page.Range.getValue(controlId.DAMPENING_RANGE);
     }
 
     public static addResetObserver(observer: Observer): void {

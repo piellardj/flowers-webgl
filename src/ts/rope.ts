@@ -15,10 +15,11 @@ function createRopeNode(x: number, y: number): IRopeNode {
     };
 }
 
-const DAMPENING = 0.999;
 const NB_ITERATIONS = 8;
 
 class Rope {
+    public dampening: number = 1;
+
     private readonly nodes: IRopeNode[];
     private readonly segmentLength: number;
     private readonly totalLength: number;
@@ -81,8 +82,8 @@ class Rope {
             // NEW_VELOCITY = DAMPENING * CURRENT_VELOCITY + CURRENT_ACCELERATION * DT
             // NEW_POSITION = CURRENT_POSITION + NEW_VELOCITY * DT
 
-            const newPosX = node.pos.x + DAMPENING * (node.pos.x - node.previousPos.x) + dt * dt * node.acc.x;
-            const newPosY = node.pos.y + DAMPENING * (node.pos.y - node.previousPos.y) + dt * dt * node.acc.y;
+            const newPosX = node.pos.x + this.dampening * (node.pos.x - node.previousPos.x) + dt * dt * node.acc.x;
+            const newPosY = node.pos.y + this.dampening * (node.pos.y - node.previousPos.y) + dt * dt * node.acc.y;
 
             node.previousPos.x = node.pos.x;
             node.previousPos.y = node.pos.y;
