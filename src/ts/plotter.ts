@@ -60,24 +60,24 @@ class Plotter {
     }
 
     public drawPolygon(polygon: Line, offset: IPoint, strokeColor: string, fillColor: string): void {
-        this.context.strokeStyle = strokeColor;
-        this.context.fillStyle = fillColor;
-        this.context.lineWidth = 1; // do not adapt with cssPixel for performance reasons on mobile devices
-
-        this.context.beginPath();
-
         if (polygon.length >= 2) {
+            this.context.strokeStyle = strokeColor;
+            this.context.fillStyle = fillColor;
+            this.context.lineWidth = 1; // do not adapt with cssPixel for performance reasons on mobile devices
+
+            this.context.beginPath();
+
+
             this.context.moveTo((polygon[0].x + offset.x) * this.cssPixel, (polygon[0].y + offset.y) * this.cssPixel);
 
             for (let iP = 1; iP < polygon.length; iP++) {
                 this.context.lineTo((polygon[iP].x + offset.x) * this.cssPixel, (polygon[iP].y + offset.y) * this.cssPixel);
             }
 
+            this.context.closePath();
             this.context.fill();
             this.context.stroke();
         }
-
-        this.context.closePath();
     }
 
     public drawEllipsis(ellipsis: IEllipse[], color: string): void {
