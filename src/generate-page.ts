@@ -3,10 +3,11 @@ import * as path from "path";
 import { Demopage } from "webpage-templates";
 
 const data = {
-    title: "TITLE",
-    description: "DESCRIPTION",
+    title: "Flowers",
+    description: "Simple project painting flowers in a naive style using rope physics and Verlet integration",
     introduction: [
-        "INTRODUCTION"
+        "This is a naive project painting a flower field. Over time, each flower loses its petals to the wind and eventually dies, only to be replaced by a new one.",
+        "The stems are modelized as weightless ropes and animated with Verlet integration."
     ],
     githubProjectName: "flowers",
     additionalLinks: [],
