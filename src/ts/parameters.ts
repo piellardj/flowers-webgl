@@ -7,6 +7,7 @@ const controlId = {
     FLOWERS_RANGE: "flowers-range-id",
     WIND_RANGE: "wind-range-id",
     RESET_BUTTON: "reset-button-id",
+    DOWNLOAD_BUTTON: "download-button-id",
 };
 
 /* === OBSERVERS ====================================================== */
@@ -15,6 +16,13 @@ type Observer = () => unknown;
 const resetObservers: Observer[] = [];
 Page.Button.addObserver(controlId.RESET_BUTTON, () => {
     for (const observer of resetObservers) {
+        observer();
+    }
+});
+
+const downloadObservers: Observer[] = [];
+Page.Button.addObserver(controlId.DOWNLOAD_BUTTON, () => {
+    for (const observer of downloadObservers) {
         observer();
     }
 });
@@ -47,6 +55,9 @@ class Parameters {
         resetObservers.push(observer);
     }
 
+    public static addDownloadObserver(observer: Observer): void {
+        downloadObservers.push(observer);
+    }
     private constructor() { }
 }
 

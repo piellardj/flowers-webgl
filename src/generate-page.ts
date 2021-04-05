@@ -45,8 +45,17 @@ const data = {
                 {
                     type: Demopage.supportedControls.Button,
                     id: "reset-button-id",
-                    label: "Reset",
-                    flat: true
+                    label: "Reset"
+                }
+            ]
+        },
+        {
+            title: "Output",
+            controls: [
+                {
+                    type: Demopage.supportedControls.Button,
+                    id: "download-button-id",
+                    label: "Download"
                 }
             ]
         }
