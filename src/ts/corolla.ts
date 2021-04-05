@@ -76,6 +76,7 @@ class Corolla {
             detachedPetal.center.y -= 0.05 * detachedPetal.petalArea * dt;
             detachedPetal.orientation += detachedPetal.rotationSpeed * dt;
         }
+        this.trimFloatingPetals();
 
         this.noiseTime += dt;
         if (this.noiseTime > this.noisePeriod) {
@@ -104,7 +105,7 @@ class Corolla {
     }
 
     public isDead(lowestAllowed: number): boolean {
-        return this.attachedPetals.length <= 0 && this.position.y > lowestAllowed + 50;
+        return this.attachedPetals.length <= 0 && this.floatingPetals.length <= 0 && this.position.y > lowestAllowed + 50;
     }
 
     private drawPetals(plotter: Plotter): void {
@@ -114,6 +115,16 @@ class Corolla {
 
     private drawOutline(plotter: Plotter): void {
         plotter.drawPolygon(this.outline, this.position, "black", plotter.backgroundColor);
+    }
+
+    private trimFloatingPetals(): void {
+        for (let iP = this.floatingPetals.length - 1; iP >= 0; iP--) {
+            const highestPoint = this.floatingPetals[iP].center.y + 0.5 * Math.max(this.floatingPetals[iP].width, this.floatingPetals[iP].height);
+            if (highestPoint < 0) {
+                this.floatingPetals.splice(iP, 1);
+                iP--;
+            }
+        }
     }
 
     private registerFloatingPetal(petal: IEllipse): void {
