@@ -62,6 +62,18 @@ const data = {
             title: "Output",
             controls: [
                 {
+                    type: Demopage.supportedControls.ColorPicker,
+                    title: "Background",
+                    id: "background-color-id",
+                    defaultValueHex: "#DCEEFF"
+                },
+                {
+                    type: Demopage.supportedControls.ColorPicker,
+                    title: "Lines",
+                    id: "lines-color-id",
+                    defaultValueHex: "#000000"
+                },
+                {
                     type: Demopage.supportedControls.Button,
                     id: "download-button-id",
                     label: "Download"

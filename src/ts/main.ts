@@ -1,10 +1,17 @@
 import { FlowersManager } from "./flowers-manager";
 import { downloadTextFile } from "./helpers";
 import { Parameters } from "./parameters";
+import { Plotter } from "./plotting/plotter";
 import { PlotterCanvas2D } from "./plotting/plotter-canvas-2d";
 import { PlotterSvg } from "./plotting/plotter-svg";
 
 import "./page-interface-generated";
+
+function plot(flowersManager: FlowersManager, plotter: Plotter): void {
+    plotter.initialize(Parameters.backgroundColor);
+    flowersManager.draw(plotter);
+    plotter.finalize();
+}
 
 function main() {
     const plotter = new PlotterCanvas2D();
@@ -25,8 +32,7 @@ function main() {
         flowersManager.manage(plotter.width, plotter.height);
         flowersManager.update(dt);
 
-        plotter.initialize();
-        flowersManager.draw(plotter);
+        plot(flowersManager, plotter);
 
         requestAnimationFrame(mainLoop);
     }
@@ -36,8 +42,7 @@ function main() {
 
 function exportAsSvg(flowersManager: FlowersManager, width: number, height: number): void {
     const plotter = new PlotterSvg(width, height);
-    flowersManager.draw(plotter);
-    plotter.finalize();
+    plot(flowersManager, plotter);
 
     const svgText = plotter.toString();
     downloadTextFile("flowers.svg", svgText);

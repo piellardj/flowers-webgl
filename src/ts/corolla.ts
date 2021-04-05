@@ -114,7 +114,7 @@ class Corolla {
     }
 
     private drawOutline(plotter: Plotter): void {
-        plotter.drawPolygon(this.outline, this.position, "black", plotter.backgroundColor);
+        plotter.drawPolygon(this.outline, this.position, Parameters.linesColor, Parameters.backgroundColor);
     }
 
     private trimFloatingPetals(): void {

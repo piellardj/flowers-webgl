@@ -51,7 +51,7 @@ class FlowersManager {
             stems.push(flower.getDrawableStem());
         }
 
-        plotter.drawLines(stems, "black");
+        plotter.drawLines(stems, Parameters.linesColor);
         for (const flower of this.flowers) {
             flower.drawCorolla(plotter);
         }

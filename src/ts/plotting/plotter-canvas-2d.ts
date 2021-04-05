@@ -8,8 +8,6 @@ function ellipsePolyfill(this: CanvasRenderingContext2D, centerX: number, center
 }
 
 class PlotterCanvas2D implements Plotter {
-    public backgroundColor: string = "#DCEEFF";
-
     private readonly canvas: HTMLCanvasElement;
     private readonly context: CanvasRenderingContext2D;
     private readonly cssPixel: number;
@@ -36,10 +34,13 @@ class PlotterCanvas2D implements Plotter {
         this._height = this.canvas.clientHeight;
     }
 
-    public initialize(): void {
-        this.context.fillStyle = this.backgroundColor;
+    public initialize(backgroundColor: string): void {
+        this.context.fillStyle = backgroundColor;
         this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
     }
+
+    // tslint:disable-next-line no-empty
+    public finalize(): void { }
 
     public drawLines(lines: Line[], color: string): void {
         if (lines.length >= 1) {

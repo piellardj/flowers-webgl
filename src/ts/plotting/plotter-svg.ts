@@ -8,19 +8,22 @@ function radianToDegree(radian: number) {
 }
 
 class PlotterSvg implements Plotter {
-    public backgroundColor: string = "#DCEEFF";
     private readonly stringParts: string[];
+    private readonly width: number;
+    private readonly height: number;
 
     public constructor(width: number, height: number) {
         this.stringParts = [];
-        this.stringParts.push(`<?xml version="1.0" encoding="UTF-8" standalone="no"?>`);
-        this.stringParts.push(`<svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 ${width} ${height}">`);
-
-        this.stringParts.push(`\t<rect fill="${this.backgroundColor}" stroke="none" x="0" y="0" width="${width}" height="${height}"/>`);
+        this.width = width;
+        this.height = height;
     }
 
-    // tslint:disable-next-line no-empty
-    public initialize(): void { }
+    public initialize(backgroundColor: string): void {
+        this.stringParts.push(`<?xml version="1.0" encoding="UTF-8" standalone="no"?>`);
+        this.stringParts.push(`<svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 ${this.width} ${this.height}">`);
+
+        this.stringParts.push(`\t<rect fill="${backgroundColor}" stroke="none" x="0" y="0" width="${this.width}" height="${this.height}"/>`);
+    }
 
     public finalize(): void {
         this.stringParts.push("</svg>");

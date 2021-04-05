@@ -5,9 +5,8 @@ import "../page-interface-generated";
 type Line = IPoint[];
 
 abstract class Plotter {
-    public backgroundColor: string = "#DCEEFF";
-
-    public abstract initialize(): void;
+    public abstract initialize(backgroundColor: string): void;
+    public abstract finalize(): void;
 
     public abstract drawLines(lines: Line[], color: string): void;
 

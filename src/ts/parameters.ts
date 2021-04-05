@@ -8,6 +8,8 @@ const controlId = {
     WIND_RANGE: "wind-range-id",
     SPEED_RANGE: "speed-range-id",
     RESET_BUTTON: "reset-button-id",
+    BACKGROUND_COLORPICKER: "background-color-id",
+    LINES_COLORPICKER: "lines-color-id",
     DOWNLOAD_BUTTON: "download-button-id",
 };
 
@@ -27,6 +29,10 @@ Page.Button.addObserver(controlId.DOWNLOAD_BUTTON, () => {
         observer();
     }
 });
+
+function rgbToHexa(rgb: any): string {
+    return `#${rgb.r.toString(16)}${rgb.g.toString(16)}${rgb.b.toString(16)}`;
+}
 
 /* === INTERFACE ====================================================== */
 class Parameters {
@@ -58,6 +64,16 @@ class Parameters {
 
     public static addResetObserver(observer: Observer): void {
         resetObservers.push(observer);
+    }
+
+    public static get backgroundColor(): string {
+        const color = Page.ColorPicker.getValue(controlId.BACKGROUND_COLORPICKER);
+        return rgbToHexa(color);
+    }
+
+    public static get linesColor(): string {
+        const color = Page.ColorPicker.getValue(controlId.LINES_COLORPICKER);
+        return rgbToHexa(color);
     }
 
     public static addDownloadObserver(observer: Observer): void {
