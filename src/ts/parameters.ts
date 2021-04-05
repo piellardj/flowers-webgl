@@ -12,25 +12,28 @@ const controlId = {
     RESET_BUTTON: "reset-button-id",
     BACKGROUND_COLORPICKER: "background-color-id",
     LINES_COLORPICKER: "lines-color-id",
+    SINGLE_PETAL_COLOR_CHECKBOX: "single-petal-color-checkbox-id",
+    PETAL_COLORPICKER: "petal-color-id",
     DOWNLOAD_BUTTON: "download-button-id",
 };
 
 /* === OBSERVERS ====================================================== */
 type Observer = () => unknown;
+function callObservers(observers: Observer[]) {
+    for (const observer of observers) {
+        observer();
+    }
+}
 
 const resetObservers: Observer[] = [];
-Page.Button.addObserver(controlId.RESET_BUTTON, () => {
-    for (const observer of resetObservers) {
-        observer();
-    }
-});
-
 const downloadObservers: Observer[] = [];
-Page.Button.addObserver(controlId.DOWNLOAD_BUTTON, () => {
-    for (const observer of downloadObservers) {
-        observer();
-    }
-});
+const petalColorChangeObservers: Observer[] = [];
+
+interface IColorRGB {
+    r: number; // in [0, 255]
+    g: number; // in [0, 255]
+    b: number; // in [0, 255]
+}
 
 /* === INTERFACE ====================================================== */
 class Parameters {
@@ -80,12 +83,50 @@ class Parameters {
         return Page.ColorPicker.getValueHex(controlId.LINES_COLORPICKER);
     }
 
+    public static get singlePetalColor(): boolean {
+        return Page.Checkbox.isChecked(controlId.SINGLE_PETAL_COLOR_CHECKBOX);
+    }
+
+    public static get petalColor(): IColorRGB {
+        return Page.ColorPicker.getValue(controlId.PETAL_COLORPICKER) as IColorRGB;
+    }
+
+    public static addPetalColorChange(observer: Observer): void {
+        petalColorChangeObservers.push(observer);
+    }
+
     public static addDownloadObserver(observer: Observer): void {
         downloadObservers.push(observer);
     }
+
     private constructor() { }
 }
 
+function updatePetalColorsVisibility(): void {
+    const visible = Page.Checkbox.isChecked(controlId.SINGLE_PETAL_COLOR_CHECKBOX);
+    Page.Controls.setVisibility(controlId.PETAL_COLORPICKER, visible);
+}
+Page.Checkbox.addObserver(controlId.SINGLE_PETAL_COLOR_CHECKBOX, updatePetalColorsVisibility);
+updatePetalColorsVisibility();
+
+Page.Button.addObserver(controlId.RESET_BUTTON, () => {
+    callObservers(resetObservers);
+});
+
+Page.Button.addObserver(controlId.DOWNLOAD_BUTTON, () => {
+    callObservers(downloadObservers);
+});
+
+Page.Checkbox.addObserver(controlId.SINGLE_PETAL_COLOR_CHECKBOX, () => {
+    callObservers(petalColorChangeObservers);
+});
+Page.ColorPicker.addObserver(controlId.PETAL_COLORPICKER, () => {
+    if (Parameters.singlePetalColor) {
+        callObservers(petalColorChangeObservers);
+    }
+});
+
 export {
+    IColorRGB,
     Parameters,
 };

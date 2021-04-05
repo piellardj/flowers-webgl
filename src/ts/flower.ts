@@ -42,6 +42,10 @@ class Flower {
         return this.corolla.isDead(lowestAllowed) && this.stem.highestPoint >= lowestAllowed;
     }
 
+    public resetPetalColors(): void {
+        this.corolla.resetPetalColors();
+    }
+
     private attachCorolla(): void {
         this.corolla.position.x = this.stem.endPosition.x;
         this.corolla.position.y = this.stem.endPosition.y;

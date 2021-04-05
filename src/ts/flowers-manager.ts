@@ -59,6 +59,12 @@ class FlowersManager {
         }
     }
 
+    public resetPetalColors(): void {
+        for (const flower of this.flowers) {
+            flower.resetPetalColors();
+        }
+    }
+
     private static createFlower(domainWidth: number, domainHeight: number): Flower {
         const attachPoint: IPoint = {
             x: domainWidth * Math.random(),

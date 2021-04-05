@@ -20,7 +20,7 @@ function main() {
 
     Parameters.addResetObserver(() => flowersManager.reset());
     Parameters.addDownloadObserver(() => exportAsSvg(flowersManager, plotter.width, plotter.height));
-
+    Parameters.addPetalColorChange(() => { flowersManager.resetPetalColors(); });
     const maxDt = 1 / 60;
     let lastUpdate = performance.now();
     function mainLoop() {

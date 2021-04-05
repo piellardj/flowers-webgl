@@ -1,7 +1,7 @@
 import { ForceField } from "./force-field";
 import { IEllipse, IPoint, IVector } from "./interfaces";
 import { Noise } from "./noise";
-import { Parameters } from "./parameters";
+import { IColorRGB, Parameters } from "./parameters";
 import { Plotter } from "./plotting/plotter";
 
 interface IFloatingPetal extends IEllipse {
@@ -10,22 +10,22 @@ interface IFloatingPetal extends IEllipse {
     rotationSpeed: number;
 }
 
-function randomColor(): string {
+function randomColor(): IColorRGB {
     const random = Noise.randomInRange(0, 3);
     const randomChannel = Math.floor(0.5 * 255 * (random % 1));
 
     if (random < 1) {
-        return `255, 0, ${255 - randomChannel}`;
+        return { r: 255, g: 0, b: 255 - randomChannel };
     } else if (random < 2) {
-        return `255, ${randomChannel}, 0`;
+        return { r: 255, g: randomChannel, b: 0 };
     } else if (random < 3) {
-        return `${255 - randomChannel}, 255, 0`;
+        return { r: 255 - randomChannel, g: 255, b: 0 };
     } else if (random < 4) {
-        return `0, 255, ${randomChannel}`;
+        return { r: 0, g: 255, b: randomChannel };
     } else if (random < 5) {
-        return `0, ${255 - randomChannel}, 255`;
+        return { r: 0, g: 255 - randomChannel, b: 255 };
     } else {
-        return `${randomChannel}, 0, 255`;
+        return { r: randomChannel, g: 0, b: 255 };
     }
 }
 
@@ -34,7 +34,7 @@ const PETALS_DROP_RATE = 0.1;
 class Corolla {
     public readonly position: IPoint; // readonly because attachedPetals reference it
 
-    private readonly color: string;
+    private color: string;
     private readonly attachedPetals: IEllipse[];
     private readonly floatingPetals: IFloatingPetal[];
     private readonly outline: IPoint[];
@@ -44,7 +44,7 @@ class Corolla {
 
     public constructor() {
         this.position = { x: 0, y: 0 };
-        this.color = `rgba(${randomColor()}, 0.2)`;
+        this.resetPetalColors();
         this.attachedPetals = this.computePetals(10);
         this.floatingPetals = [];
         this.outline = Corolla.computeOutline(40, 20);
@@ -92,6 +92,11 @@ class Corolla {
 
     public isDead(lowestAllowed: number): boolean {
         return this.attachedPetals.length <= 0 && this.floatingPetals.length <= 0 && this.position.y > lowestAllowed + 50;
+    }
+
+    public resetPetalColors(): void {
+        const color = Parameters.singlePetalColor ? Parameters.petalColor : randomColor();
+        this.color = `rgba(${color.r}, ${color.g}, ${color.b}, 0.2)`;
     }
 
     private drawPetals(plotter: Plotter): void {

@@ -92,6 +92,18 @@ const data = {
                     defaultValueHex: "#000000"
                 },
                 {
+                    type: Demopage.supportedControls.Checkbox,
+                    title: "Single color",
+                    id: "single-petal-color-checkbox-id",
+                    checked: false
+                },
+                {
+                    type: Demopage.supportedControls.ColorPicker,
+                    title: "Petal color",
+                    id: "petal-color-id",
+                    defaultValueHex: "#FF0000"
+                },
+                {
                     type: Demopage.supportedControls.Button,
                     id: "download-button-id",
                     label: "Download"
