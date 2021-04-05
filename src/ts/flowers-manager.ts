@@ -1,10 +1,10 @@
 import { Flower } from "./flower";
 import { IPoint } from "./interfaces";
+import { Parameters } from "./parameters";
 import { Line, Plotter } from "./plotter";
 
 class FlowersManager {
     private readonly flowers: Flower[];
-    public flowersDensity: number = 0.06;
 
     public constructor() {
         this.flowers = [];
@@ -15,7 +15,7 @@ class FlowersManager {
     }
 
     public manage(domainWidth: number, domainHeight: number): void {
-        const idealNumberOfFlowers = Math.round(domainWidth * this.flowersDensity);
+        const idealNumberOfFlowers = Math.round(domainWidth * Parameters.flowersDensity);
 
         // create new flowers if needed
         while (this.flowers.length < idealNumberOfFlowers) {

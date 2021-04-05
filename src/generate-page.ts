@@ -25,6 +25,15 @@ const data = {
             title: "Simulation",
             controls: [
                 {
+                    type: Demopage.supportedControls.Range,
+                    title: "Flowers",
+                    id: "flowers-range-id",
+                    min: 0,
+                    max: 1,
+                    value: 0.3,
+                    step: 0.05
+                },
+                {
                     type: Demopage.supportedControls.Button,
                     id: "reset-button-id",
                     label: "Reset",

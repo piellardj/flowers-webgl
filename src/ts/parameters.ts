@@ -4,6 +4,7 @@ import "./page-interface-generated";
 
 /* === IDs ============================================================ */
 const controlId = {
+    FLOWERS_RANGE: "flowers-range-id",
     RESET_BUTTON: "reset-button-id",
 };
 
@@ -31,6 +32,10 @@ class Parameters {
             // handles a bug where mousePosition is empty when the page is initializing
             return { x: 0, y: 0 };
         }
+    }
+
+    public static get flowersDensity(): number {
+        return Page.Range.getValue(controlId.FLOWERS_RANGE) * 0.25;
     }
 
     public static addResetObserver(observer: Observer): void {
