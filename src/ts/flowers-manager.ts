@@ -1,5 +1,6 @@
 import { Flower } from "./flower";
 import { IPoint } from "./interfaces";
+import { Noise } from "./noise";
 import { Parameters } from "./parameters";
 import { Line, Plotter } from "./plotting/plotter";
 
@@ -63,8 +64,7 @@ class FlowersManager {
             y: domainHeight,
         };
 
-        const MIN_HEIGHT = 200;
-        const flowerLength = MIN_HEIGHT + 0.75 * Math.max(domainHeight - MIN_HEIGHT, 0) * Math.random();
+        const flowerLength = Noise.randomInRange(0.2, 0.8) * domainHeight;
         return new Flower(attachPoint, flowerLength);
     }
 }

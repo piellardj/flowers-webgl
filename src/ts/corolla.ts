@@ -1,4 +1,5 @@
 import { IEllipse, IPoint, IVector } from "./interfaces";
+import { Noise } from "./noise";
 import { Parameters } from "./parameters";
 import { Plotter } from "./plotting/plotter";
 
@@ -8,12 +9,8 @@ interface IFloatingPetal extends IEllipse {
     rotationSpeed: number;
 }
 
-function randomInRange(from: number, to: number): number {
-    return from + (to - from) * Math.random();
-}
-
 function randomColor(): string {
-    const random = randomInRange(0, 3);
+    const random = Noise.randomInRange(0, 3);
     const randomChannel = Math.floor(0.5 * 255 * (random % 1));
 
     if (random < 1) {
@@ -33,8 +30,8 @@ function randomColor(): string {
 
 function windNoise(): IVector {
     return {
-        x: Parameters.wind * randomInRange(-5000, 5000),
-        y: randomInRange(-500, 500),
+        x: Parameters.wind * Noise.randomInRange(-5000, 5000),
+        y: Noise.randomInRange(-500, 500),
     };
 }
 
@@ -48,10 +45,8 @@ class Corolla {
     private readonly floatingPetals: IFloatingPetal[];
     private readonly outline: IPoint[];
 
-    public noisePeriod: number;
-    public noiseTime: number;
-    public lastNoise: IVector;
-    public nextNoise: IVector;
+    private readonly noise: Noise;
+    private wind: IVector;
 
     public constructor() {
         this.position = { x: 0, y: 0 };
@@ -60,10 +55,7 @@ class Corolla {
         this.floatingPetals = [];
         this.outline = Corolla.computeOutline(40, 20);
 
-        this.noisePeriod = randomInRange(1, 2);
-        this.noiseTime = this.noisePeriod + 1;
-        this.lastNoise = windNoise();
-        this.nextNoise = windNoise();
+        this.noise = new Noise(Noise.randomInRange(1, 2));
     }
 
     public update(dt: number): void {
@@ -78,12 +70,9 @@ class Corolla {
         }
         this.trimFloatingPetals();
 
-        this.noiseTime += dt;
-        if (this.noiseTime > this.noisePeriod) {
-            this.lastNoise = this.nextNoise;
-            this.nextNoise = windNoise();
-            this.noiseTime = this.noiseTime % this.noisePeriod;
-        }
+        this.wind = this.noise.compute(dt);
+        this.wind.x = Parameters.wind * 10000 * (this.wind.x - 0.5);
+        this.wind.y = 1000 * (this.wind.y - 0.5);
     }
 
     public draw(plotter: Plotter): void {
@@ -95,12 +84,9 @@ class Corolla {
         const DOWNWARD_FORCE = 10000;
         const UPWARD_FORCE = [7000, 10000, 11000, 12000];
 
-        const r = this.noiseTime / this.noisePeriod;
-        const noiseX = this.lastNoise.x * (1 - r) + this.nextNoise.x * r;
-        const noiseY = this.lastNoise.y * (1 - r) + this.nextNoise.y * r;
         return {
-            x: noiseX * Math.min(1, this.attachedPetals.length / 16),
-            y: DOWNWARD_FORCE - UPWARD_FORCE[Math.min(UPWARD_FORCE.length - 1, this.attachedPetals.length)] + noiseY,
+            x: this.wind.x * Math.min(1, this.attachedPetals.length / 16),
+            y: DOWNWARD_FORCE - UPWARD_FORCE[Math.min(UPWARD_FORCE.length - 1, this.attachedPetals.length)] + this.wind.y,
         };
     }
 
@@ -131,7 +117,7 @@ class Corolla {
         const floatingPetal = petal as IFloatingPetal;
         floatingPetal.center = { x: this.position.x, y: this.position.y };
         floatingPetal.petalArea = floatingPetal.width * floatingPetal.height;
-        floatingPetal.rotationSpeed = randomInRange(-1.5, 1.5);
+        floatingPetal.rotationSpeed = Noise.randomInRange(-1.5, 1.5);
         this.floatingPetals.push(floatingPetal);
     }
 
@@ -139,10 +125,10 @@ class Corolla {
         const result: IEllipse[] = [];
 
         for (let i = 0; i < nbPetals; i++) {
-            const width = randomInRange(50, 70);
-            const proportions = randomInRange(0.3, 0.7);
+            const width = Noise.randomInRange(50, 70);
+            const proportions = Noise.randomInRange(0.3, 0.7);
             const height = proportions * width;
-            const orientation = randomInRange(0, 2 * Math.PI);
+            const orientation = Noise.randomInRange(0, 2 * Math.PI);
 
             result.push({
                 width,
@@ -160,7 +146,7 @@ class Corolla {
 
         for (let i = 0; i < outlineNbPoints; i++) {
             const angle = 2 * Math.PI * i / (outlineNbPoints - 1);
-            const radius = outlineRadius * randomInRange(1, 1.3);
+            const radius = outlineRadius * Noise.randomInRange(1, 1.3);
             result.push({
                 x: radius * Math.cos(angle),
                 y: radius * Math.sin(angle),
