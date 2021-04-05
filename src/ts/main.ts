@@ -17,7 +17,7 @@ function main() {
     let lastUpdate = performance.now();
     function mainLoop() {
         const now = performance.now();
-        const dt = 0.5 * Math.min(maxDt, 0.001 * (now - lastUpdate));
+        const dt = Parameters.speed * Math.min(maxDt, 0.001 * (now - lastUpdate));
         lastUpdate = now;
 
         plotter.adjustToCanvas();

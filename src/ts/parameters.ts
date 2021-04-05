@@ -6,6 +6,7 @@ import "./page-interface-generated";
 const controlId = {
     FLOWERS_RANGE: "flowers-range-id",
     WIND_RANGE: "wind-range-id",
+    SPEED_RANGE: "speed-range-id",
     RESET_BUTTON: "reset-button-id",
     DOWNLOAD_BUTTON: "download-button-id",
 };
@@ -49,6 +50,10 @@ class Parameters {
 
     public static get wind(): number {
         return Page.Range.getValue(controlId.WIND_RANGE);
+    }
+
+    public static get speed(): number {
+        return Page.Range.getValue(controlId.SPEED_RANGE);
     }
 
     public static addResetObserver(observer: Observer): void {
