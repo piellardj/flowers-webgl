@@ -61,6 +61,15 @@ const data = {
                     step: 0.05
                 },
                 {
+                    type: Demopage.supportedControls.Range,
+                    title: "Flee mouse",
+                    id: "flee-mouse-range-id",
+                    min: 0,
+                    max: 1,
+                    value: 0.6,
+                    step: 0.05
+                },
+                {
                     type: Demopage.supportedControls.Button,
                     id: "reset-button-id",
                     label: "Reset"

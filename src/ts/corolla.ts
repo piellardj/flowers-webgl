@@ -1,3 +1,4 @@
+import { ForceField } from "./force-field";
 import { IEllipse, IPoint, IVector } from "./interfaces";
 import { Noise } from "./noise";
 import { Parameters } from "./parameters";
@@ -26,13 +27,6 @@ function randomColor(): string {
     } else {
         return `${randomChannel}, 0, 255`;
     }
-}
-
-function windNoise(): IVector {
-    return {
-        x: Parameters.wind * Noise.randomInRange(-5000, 5000),
-        y: Noise.randomInRange(-500, 500),
-    };
 }
 
 const PETALS_DROP_RATE = 0.1;
@@ -80,14 +74,20 @@ class Corolla {
         this.drawPetals(plotter);
     }
 
-    public getAcceleration(): IVector {
+    public getAcceleration(forceField: ForceField): IVector {
+        const acceleration: IVector = { x: 0, y: 0 };
+        acceleration.x += this.wind.x * Math.min(1, this.attachedPetals.length / 16);
+        acceleration.y += this.wind.y;
+
         const DOWNWARD_FORCE = 10000;
         const UPWARD_FORCE = [7000, 10000, 11000, 12000];
+        acceleration.y += DOWNWARD_FORCE - UPWARD_FORCE[Math.min(UPWARD_FORCE.length - 1, this.attachedPetals.length)];
 
-        return {
-            x: this.wind.x * Math.min(1, this.attachedPetals.length / 16),
-            y: DOWNWARD_FORCE - UPWARD_FORCE[Math.min(UPWARD_FORCE.length - 1, this.attachedPetals.length)] + this.wind.y,
-        };
+        const fieldForce = forceField.computeForce(this.position);
+        acceleration.x += 2000 * fieldForce.x;
+        acceleration.y += 2000 * fieldForce.y;
+
+        return acceleration;
     }
 
     public isDead(lowestAllowed: number): boolean {

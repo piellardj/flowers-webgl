@@ -1,4 +1,5 @@
 import { Corolla } from "./corolla";
+import { ForceField } from "./force-field";
 import { IPoint } from "./interfaces";
 import { Parameters } from "./parameters";
 import { Line, Plotter } from "./plotting/plotter";
@@ -21,9 +22,9 @@ class Flower {
         this.attachCorolla();
     }
 
-    public update(dt: number): void {
+    public update(dt: number, forceField: ForceField): void {
         this.corolla.update(dt);
-        const corollaAcceleration = this.corolla.getAcceleration();
+        const corollaAcceleration = this.corolla.getAcceleration(forceField);
         this.stem.dampening = Parameters.dampening;
         this.stem.update(dt, this.attachPoint, corollaAcceleration);
         this.attachCorolla();

@@ -1,4 +1,5 @@
 import { Flower } from "./flower";
+import { ForceField } from "./force-field";
 import { IPoint } from "./interfaces";
 import { Noise } from "./noise";
 import { Parameters } from "./parameters";
@@ -39,9 +40,9 @@ class FlowersManager {
         }
     }
 
-    public update(dt: number): void {
+    public update(dt: number, forceField: ForceField): void {
         for (const flower of this.flowers) {
-            flower.update(dt);
+            flower.update(dt, forceField);
         }
     }
 

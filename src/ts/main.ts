@@ -1,4 +1,5 @@
 import { FlowersManager } from "./flowers-manager";
+import { ForceField } from "./force-field";
 import { downloadTextFile } from "./helpers";
 import { Parameters } from "./parameters";
 import { Plotter } from "./plotting/plotter";
@@ -30,7 +31,9 @@ function main() {
         plotter.adjustToCanvas();
 
         flowersManager.manage(plotter.width, plotter.height);
-        flowersManager.update(dt);
+
+        const forceField = new ForceField(Parameters.mousePositionInPixels, 500);
+        flowersManager.update(dt, forceField);
 
         plot(flowersManager, plotter);
 
