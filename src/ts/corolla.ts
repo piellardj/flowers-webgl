@@ -1,12 +1,16 @@
 import { IPoint, IVector } from "./interfaces";
-import { PetalsManager } from "./petals-manager";
 import { Plotter } from "./plotter";
 
 interface IPetal {
-    center: IPoint;
     width: number;
     height: number;
     orientation: number;
+}
+
+interface IFloatingPetal extends IPetal {
+    center: IPoint;
+    petalArea: number;
+    rotationSpeed: number;
 }
 
 function randomColor(): string {
@@ -39,7 +43,8 @@ const PETALS_DROP_RATE = 0.1;
 
 class Corolla {
     private readonly color: string;
-    private readonly petals: IPetal[];
+    private readonly attachedPetals: IPetal[];
+    private readonly floatingPetals: IFloatingPetal[];
     private readonly outline: IPoint[];
 
     public readonly position: IPoint;
@@ -51,7 +56,8 @@ class Corolla {
 
     public constructor() {
         this.color = `rgba(${randomColor()}, 0.2)`;
-        this.petals = Corolla.computePetals(8);
+        this.attachedPetals = Corolla.computePetals(8);
+        this.floatingPetals = [];
         this.outline = Corolla.computeOutline(40, 20);
         this.position = { x: 0, y: 0 };
 
@@ -61,12 +67,15 @@ class Corolla {
         this.nextNoise = noise();
     }
 
-    public update(dt: number, petalsManager: PetalsManager): void {
-        if (this.petals.length > 0 && Math.random() < PETALS_DROP_RATE * dt) {
-            const newFreePetal = this.petals.pop();
-            newFreePetal.center.x = this.position.x;
-            newFreePetal.center.y = this.position.y;
-            petalsManager.registerFreePetal(newFreePetal, this.color);
+    public update(dt: number): void {
+        if (this.attachedPetals.length > 0 && Math.random() < PETALS_DROP_RATE * dt) {
+            const newFreePetal = this.attachedPetals.pop();
+            this.registerFloatingPetal(newFreePetal);
+        }
+
+        for (const detachedPetal of this.floatingPetals) {
+            detachedPetal.center.y -= 0.05 * detachedPetal.petalArea * dt;
+            detachedPetal.orientation += detachedPetal.rotationSpeed * dt;
         }
 
         this.noiseTime += dt;
@@ -90,28 +99,35 @@ class Corolla {
         const noiseX = this.lastNoise.x * (1 - r) + this.nextNoise.x * r;
         const noiseY = this.lastNoise.y * (1 - r) + this.nextNoise.y * r;
         return {
-            x: noiseX * Math.min(1, this.petals.length / 16),
-            y: DOWNWARD_FORCE - UPWARD_FORCE[Math.min(UPWARD_FORCE.length - 1, this.petals.length)] + noiseY,
+            x: noiseX * Math.min(1, this.attachedPetals.length / 16),
+            y: DOWNWARD_FORCE - UPWARD_FORCE[Math.min(UPWARD_FORCE.length - 1, this.attachedPetals.length)] + noiseY,
         };
     }
 
     public isDead(lowestAllowed: number): boolean {
-        return this.petals.length <= 0 && this.position.y > lowestAllowed + 50;
+        return this.attachedPetals.length <= 0 && this.position.y > lowestAllowed + 50;
     }
 
     private drawPetals(plotter: Plotter): void {
-        for (const petal of this.petals) {
-            const center = {
-                x: this.position.x + petal.center.x,
-                y: this.position.y + petal.center.y,
-            };
+        for (const petal of this.attachedPetals) {
+            plotter.drawEllipsis(this.position, 0.5 * petal.width, 0.5 * petal.height, petal.orientation, this.color);
+        }
 
-            plotter.drawEllipsis(center, 0.5 * petal.width, 0.5 * petal.height, petal.orientation, this.color);
+        for (const petal of this.floatingPetals) {
+            plotter.drawEllipsis(petal.center, 0.5 * petal.width, 0.5 * petal.height, petal.orientation, this.color);
         }
     }
 
     private drawOutline(plotter: Plotter): void {
         plotter.drawPolygon(this.outline, this.position, "black", plotter.backgroundColor);
+    }
+
+    private registerFloatingPetal(petal: IPetal): void {
+        const floatingPetal = petal as IFloatingPetal;
+        floatingPetal.center = { x: this.position.x, y: this.position.y };
+        floatingPetal.petalArea = floatingPetal.width * floatingPetal.height;
+        floatingPetal.rotationSpeed = 2 * (Math.random() - 0.5);
+        this.floatingPetals.push(floatingPetal);
     }
 
     private static computePetals(nbPetals: number): IPetal[] {
@@ -122,12 +138,8 @@ class Corolla {
             const radiusX = 20 + 20 * Math.random();
             const radiusY = proportions * radiusX;
             const orientation = 2 * Math.PI * Math.random();
-            const distanceToCenter = 0;// (0.2 + 0.3 * Math.random()) * radiusX;
-            const centerX = distanceToCenter * Math.cos(orientation);
-            const centerY = distanceToCenter * Math.sin(orientation);
 
             result.push({
-                center: { x: centerX, y: centerY },
                 width: 2 * radiusX,
                 height: 2 * radiusY,
                 orientation,

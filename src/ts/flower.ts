@@ -1,6 +1,5 @@
 import { Corolla } from "./corolla";
 import { IPoint } from "./interfaces";
-import { PetalsManager } from "./petals-manager";
 import { Line, Plotter } from "./plotter";
 import { Rope } from "./rope";
 
@@ -21,8 +20,8 @@ class Flower {
         this.attachCorolla();
     }
 
-    public update(dt: number, petalsManager: PetalsManager): void {
-        this.corolla.update(dt, petalsManager);
+    public update(dt: number): void {
+        this.corolla.update(dt);
         const corollaAcceleration = this.corolla.getAcceleration();
         this.stem.update(dt, this.attachPoint, corollaAcceleration);
         this.attachCorolla();

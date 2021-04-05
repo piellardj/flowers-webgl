@@ -1,6 +1,5 @@
 import { Flower } from "./flower";
 import { IPoint } from "./interfaces";
-import { PetalsManager } from "./petals-manager";
 import { Line, Plotter } from "./plotter";
 
 class FlowersManager {
@@ -35,9 +34,9 @@ class FlowersManager {
         }
     }
 
-    public update(dt: number, petalsManager: PetalsManager): void {
+    public update(dt: number): void {
         for (const flower of this.flowers) {
-            flower.update(dt, petalsManager);
+            flower.update(dt);
         }
     }
 
