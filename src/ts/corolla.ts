@@ -7,8 +7,12 @@ interface IFloatingPetal extends IEllipse {
     rotationSpeed: number;
 }
 
+function randomInRange(from: number, to: number): number {
+    return from + (to - from) * Math.random();
+}
+
 function randomColor(): string {
-    const random = Math.random() * 3;
+    const random = randomInRange(0, 3);
     const randomChannel = Math.floor(0.5 * 255 * (random % 1));
 
     if (random < 1) {
@@ -28,8 +32,8 @@ function randomColor(): string {
 
 function noise(): IVector {
     return {
-        x: 5000 * (Math.random() - 0.5),
-        y: 100 * (Math.random() - 0.5),
+        x: randomInRange(-2500, 2500),
+        y: randomInRange(-50, 50),
     };
 }
 
@@ -51,11 +55,11 @@ class Corolla {
     public constructor() {
         this.position = { x: 0, y: 0 };
         this.color = `rgba(${randomColor()}, 0.2)`;
-        this.attachedPetals = this.computePetals(8);
+        this.attachedPetals = this.computePetals(10);
         this.floatingPetals = [];
         this.outline = Corolla.computeOutline(40, 20);
 
-        this.noisePeriod = 1 + Math.random();
+        this.noisePeriod = randomInRange(1, 2);
         this.noiseTime = this.noisePeriod + 1;
         this.lastNoise = noise();
         this.nextNoise = noise();
@@ -115,7 +119,7 @@ class Corolla {
         const floatingPetal = petal as IFloatingPetal;
         floatingPetal.center = { x: this.position.x, y: this.position.y };
         floatingPetal.petalArea = floatingPetal.width * floatingPetal.height;
-        floatingPetal.rotationSpeed = 2 * (Math.random() - 0.5);
+        floatingPetal.rotationSpeed = randomInRange(-1.5, 1.5);
         this.floatingPetals.push(floatingPetal);
     }
 
@@ -123,14 +127,14 @@ class Corolla {
         const result: IEllipse[] = [];
 
         for (let i = 0; i < nbPetals; i++) {
-            const proportions = 0.3 + 0.4 * Math.random();
-            const radiusX = 20 + 20 * Math.random();
-            const radiusY = proportions * radiusX;
-            const orientation = 2 * Math.PI * Math.random();
+            const width = randomInRange(50, 70);
+            const proportions = randomInRange(0.3, 0.7);
+            const height = proportions * width;
+            const orientation = randomInRange(0, 2 * Math.PI);
 
             result.push({
-                width: 2 * radiusX,
-                height: 2 * radiusY,
+                width,
+                height,
                 orientation,
                 center: this.position,
             });
@@ -144,10 +148,10 @@ class Corolla {
 
         for (let i = 0; i < outlineNbPoints; i++) {
             const angle = 2 * Math.PI * i / (outlineNbPoints - 1);
-            const radius = outlineRadius * (1 + 0.3 * Math.random());
+            const radius = outlineRadius * randomInRange(1, 1.3);
             result.push({
-                x: radius * Math.cos(angle),// + 5 * Math.random(),
-                y: radius * Math.sin(angle),// + 5 * Math.random(),
+                x: radius * Math.cos(angle),
+                y: radius * Math.sin(angle),
             });
         }
 
