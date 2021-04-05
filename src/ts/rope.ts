@@ -15,8 +15,8 @@ function createRopeNode(x: number, y: number): IRopeNode {
     };
 }
 
-const DAMPENING = 0.99;
-const NB_ITERATIONS = 20;
+const DAMPENING = 0.999;
+const NB_ITERATIONS = 8;
 
 class Rope {
     private readonly nodes: IRopeNode[];
