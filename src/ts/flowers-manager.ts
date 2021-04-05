@@ -10,6 +10,10 @@ class FlowersManager {
         this.flowers = [];
     }
 
+    public reset(): void {
+        this.flowers.length = 0;
+    }
+
     public manage(domainWidth: number, domainHeight: number): void {
         const idealNumberOfFlowers = Math.round(domainWidth * this.flowersDensity);
 

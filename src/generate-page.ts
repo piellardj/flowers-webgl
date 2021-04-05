@@ -21,6 +21,17 @@ const data = {
         enableFullscreen: true
     },
     controlsSections: [
+        {
+            title: "Simulation",
+            controls: [
+                {
+                    type: Demopage.supportedControls.Button,
+                    id: "reset-button-id",
+                    label: "Reset",
+                    flat: true
+                }
+            ]
+        }
     ],
 };
 

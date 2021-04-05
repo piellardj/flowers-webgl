@@ -1,4 +1,5 @@
 import { FlowersManager } from "./flowers-manager";
+import { Parameters } from "./parameters";
 import { Plotter } from "./plotter";
 
 import "./page-interface-generated";
@@ -6,6 +7,8 @@ import "./page-interface-generated";
 function main() {
     const plotter = new Plotter();
     const flowersManager = new FlowersManager();
+
+    Parameters.addResetObserver(() => flowersManager.reset());
 
     const maxDt = 1 / 60;
     let lastUpdate = performance.now();
