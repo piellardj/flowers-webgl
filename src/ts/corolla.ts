@@ -1,4 +1,5 @@
 import { IEllipse, IPoint, IVector } from "./interfaces";
+import { Parameters } from "./parameters";
 import { Plotter } from "./plotter";
 
 interface IFloatingPetal extends IEllipse {
@@ -30,10 +31,10 @@ function randomColor(): string {
     }
 }
 
-function noise(): IVector {
+function windNoise(): IVector {
     return {
-        x: randomInRange(-2500, 2500),
-        y: randomInRange(-50, 50),
+        x: Parameters.wind * randomInRange(-5000, 5000),
+        y: randomInRange(-500, 500),
     };
 }
 
@@ -61,8 +62,8 @@ class Corolla {
 
         this.noisePeriod = randomInRange(1, 2);
         this.noiseTime = this.noisePeriod + 1;
-        this.lastNoise = noise();
-        this.nextNoise = noise();
+        this.lastNoise = windNoise();
+        this.nextNoise = windNoise();
     }
 
     public update(dt: number): void {
@@ -79,7 +80,7 @@ class Corolla {
         this.noiseTime += dt;
         if (this.noiseTime > this.noisePeriod) {
             this.lastNoise = this.nextNoise;
-            this.nextNoise = noise();
+            this.nextNoise = windNoise();
             this.noiseTime = this.noiseTime % this.noisePeriod;
         }
     }

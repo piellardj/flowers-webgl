@@ -5,6 +5,7 @@ import "./page-interface-generated";
 /* === IDs ============================================================ */
 const controlId = {
     FLOWERS_RANGE: "flowers-range-id",
+    WIND_RANGE: "wind-range-id",
     RESET_BUTTON: "reset-button-id",
 };
 
@@ -36,6 +37,10 @@ class Parameters {
 
     public static get flowersDensity(): number {
         return Page.Range.getValue(controlId.FLOWERS_RANGE) * 0.25;
+    }
+
+    public static get wind(): number {
+        return Page.Range.getValue(controlId.WIND_RANGE);
     }
 
     public static addResetObserver(observer: Observer): void {
