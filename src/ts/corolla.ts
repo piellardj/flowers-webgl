@@ -1,6 +1,6 @@
 import { IEllipse, IPoint, IVector } from "./interfaces";
 import { Parameters } from "./parameters";
-import { Plotter } from "./plotter";
+import { Plotter } from "./plotting/plotter";
 
 interface IFloatingPetal extends IEllipse {
     center: IPoint;

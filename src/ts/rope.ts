@@ -1,5 +1,5 @@
 import { IPoint, IVector } from "./interfaces";
-import { Line, Plotter } from "./plotter";
+import { Line, Plotter } from "./plotting/plotter";
 
 interface IRopeNode {
     pos: IPoint;

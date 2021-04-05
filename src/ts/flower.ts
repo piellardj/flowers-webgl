@@ -1,6 +1,6 @@
 import { Corolla } from "./corolla";
 import { IPoint } from "./interfaces";
-import { Line, Plotter } from "./plotter";
+import { Line, Plotter } from "./plotting/plotter";
 import { Rope } from "./rope";
 
 class Flower {

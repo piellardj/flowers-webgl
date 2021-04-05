@@ -1,11 +1,11 @@
 import { FlowersManager } from "./flowers-manager";
 import { Parameters } from "./parameters";
-import { Plotter } from "./plotter";
+import { PlotterCanvas2D } from "./plotting/plotter-canvas-2d";
 
 import "./page-interface-generated";
 
 function main() {
-    const plotter = new Plotter();
+    const plotter = new PlotterCanvas2D();
     const flowersManager = new FlowersManager();
 
     Parameters.addResetObserver(() => flowersManager.reset());

@@ -1,10 +1,9 @@
-import { IEllipse, IPoint } from "./interfaces";
+import { IEllipse, IPoint } from "../interfaces";
+import { Line, Plotter } from "./plotter";
 
-import "./page-interface-generated";
+import "../page-interface-generated";
 
-type Line = IPoint[];
-
-class Plotter {
+class PlotterCanvas2D implements Plotter {
     public backgroundColor: string = "#DCEEFF";
 
     private readonly canvas: HTMLCanvasElement;
@@ -101,6 +100,5 @@ class Plotter {
 }
 
 export {
-    Line,
-    Plotter,
+    PlotterCanvas2D,
 };

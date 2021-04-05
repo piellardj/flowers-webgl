@@ -1,7 +1,7 @@
 import { Flower } from "./flower";
 import { IPoint } from "./interfaces";
 import { Parameters } from "./parameters";
-import { Line, Plotter } from "./plotter";
+import { Line, Plotter } from "./plotting/plotter";
 
 class FlowersManager {
     private readonly flowers: Flower[];
