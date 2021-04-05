@@ -8,7 +8,7 @@ const controlId = {
     WIND_RANGE: "wind-range-id",
     SPEED_RANGE: "speed-range-id",
     DAMPENING_RANGE: "dampening-range-id",
-    FLEE_MOUSE_RANGE: "flee-mouse-range-id",
+    FLEE_MOUSE_CHECKBOX: "flee-mouse-checkbox-id",
     RESET_BUTTON: "reset-button-id",
     BACKGROUND_COLORPICKER: "background-color-id",
     LINES_COLORPICKER: "lines-color-id",
@@ -67,8 +67,8 @@ class Parameters {
         return 1 - 0.01 * Page.Range.getValue(controlId.DAMPENING_RANGE);
     }
 
-    public static get fleeMouseFactor(): number {
-        return Page.Range.getValue(controlId.FLEE_MOUSE_RANGE);
+    public static get fleeMouse(): boolean {
+        return Page.Checkbox.isChecked(controlId.FLEE_MOUSE_CHECKBOX);
     }
 
     public static addResetObserver(observer: Observer): void {
