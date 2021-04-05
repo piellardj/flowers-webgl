@@ -8,4 +8,15 @@ interface IVector {
     y: number;
 }
 
-export { IPoint, IVector };
+interface IEllipse {
+    width: number;
+    height: number;
+    orientation: number;
+    center: IPoint;
+}
+
+export {
+    IEllipse,
+    IPoint,
+    IVector
+};

@@ -1,13 +1,7 @@
-import { IPoint, IVector } from "./interfaces";
+import { IEllipse, IPoint, IVector } from "./interfaces";
 import { Plotter } from "./plotter";
 
-interface IPetal {
-    width: number;
-    height: number;
-    orientation: number;
-}
-
-interface IFloatingPetal extends IPetal {
+interface IFloatingPetal extends IEllipse {
     center: IPoint;
     petalArea: number;
     rotationSpeed: number;
@@ -42,12 +36,12 @@ function noise(): IVector {
 const PETALS_DROP_RATE = 0.1;
 
 class Corolla {
+    public readonly position: IPoint; // readonly because attachedPetals reference it
+
     private readonly color: string;
-    private readonly attachedPetals: IPetal[];
+    private readonly attachedPetals: IEllipse[];
     private readonly floatingPetals: IFloatingPetal[];
     private readonly outline: IPoint[];
-
-    public readonly position: IPoint;
 
     public noisePeriod: number;
     public noiseTime: number;
@@ -55,11 +49,11 @@ class Corolla {
     public nextNoise: IVector;
 
     public constructor() {
+        this.position = { x: 0, y: 0 };
         this.color = `rgba(${randomColor()}, 0.2)`;
-        this.attachedPetals = Corolla.computePetals(8);
+        this.attachedPetals = this.computePetals(8);
         this.floatingPetals = [];
         this.outline = Corolla.computeOutline(40, 20);
-        this.position = { x: 0, y: 0 };
 
         this.noisePeriod = 1 + Math.random();
         this.noiseTime = this.noisePeriod + 1;
@@ -109,20 +103,15 @@ class Corolla {
     }
 
     private drawPetals(plotter: Plotter): void {
-        for (const petal of this.attachedPetals) {
-            plotter.drawEllipsis(this.position, 0.5 * petal.width, 0.5 * petal.height, petal.orientation, this.color);
-        }
-
-        for (const petal of this.floatingPetals) {
-            plotter.drawEllipsis(petal.center, 0.5 * petal.width, 0.5 * petal.height, petal.orientation, this.color);
-        }
+        const allPetals = this.attachedPetals.concat(this.floatingPetals);
+        plotter.drawEllipsis(allPetals, this.color);
     }
 
     private drawOutline(plotter: Plotter): void {
         plotter.drawPolygon(this.outline, this.position, "black", plotter.backgroundColor);
     }
 
-    private registerFloatingPetal(petal: IPetal): void {
+    private registerFloatingPetal(petal: IEllipse): void {
         const floatingPetal = petal as IFloatingPetal;
         floatingPetal.center = { x: this.position.x, y: this.position.y };
         floatingPetal.petalArea = floatingPetal.width * floatingPetal.height;
@@ -130,8 +119,8 @@ class Corolla {
         this.floatingPetals.push(floatingPetal);
     }
 
-    private static computePetals(nbPetals: number): IPetal[] {
-        const result: IPetal[] = [];
+    private computePetals(nbPetals: number): IEllipse[] {
+        const result: IEllipse[] = [];
 
         for (let i = 0; i < nbPetals; i++) {
             const proportions = 0.3 + 0.4 * Math.random();
@@ -143,6 +132,7 @@ class Corolla {
                 width: 2 * radiusX,
                 height: 2 * radiusY,
                 orientation,
+                center: this.position,
             });
         }
 

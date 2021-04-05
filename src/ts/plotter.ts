@@ -1,4 +1,4 @@
-import { IPoint } from "./interfaces";
+import { IEllipse, IPoint } from "./interfaces";
 
 import "./page-interface-generated";
 
@@ -80,12 +80,15 @@ class Plotter {
         this.context.closePath();
     }
 
-    public drawEllipsis(center: IPoint, radiusX: number, radiusY: number, orientation: number, color: string): void {
+    public drawEllipsis(ellipsis: IEllipse[], color: string): void {
         this.context.fillStyle = color;
-        this.context.beginPath();
-        this.context.ellipse(center.x * this.cssPixel, center.y * this.cssPixel, radiusX * this.cssPixel, radiusY * this.cssPixel, orientation, 0, 2 * Math.PI);
-        this.context.fill();
-        this.context.closePath();
+
+        for (const ellipse of ellipsis) {
+            this.context.beginPath();
+            this.context.ellipse(ellipse.center.x * this.cssPixel, ellipse.center.y * this.cssPixel, 0.5 * ellipse.width * this.cssPixel, 0.5 * ellipse.height * this.cssPixel, ellipse.orientation, 0, 2 * Math.PI);
+            this.context.fill();
+            this.context.closePath();
+        }
     }
 
     public get width(): number {
