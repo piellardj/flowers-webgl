@@ -3,6 +3,10 @@ import { Line, Plotter } from "./plotter";
 
 import "../page-interface-generated";
 
+function ellipsePolyfill(this: CanvasRenderingContext2D, centerX: number, centerY: number, radiusX: number, radiusY: number) {
+    this.arc(centerX, centerY, Math.max(radiusX, radiusY), 0, 2 * Math.PI);
+}
+
 class PlotterCanvas2D implements Plotter {
     public backgroundColor: string = "#DCEEFF";
 
@@ -66,7 +70,6 @@ class PlotterCanvas2D implements Plotter {
 
             this.context.beginPath();
 
-
             this.context.moveTo((polygon[0].x + offset.x) * this.cssPixel, (polygon[0].y + offset.y) * this.cssPixel);
 
             for (let iP = 1; iP < polygon.length; iP++) {
@@ -81,6 +84,10 @@ class PlotterCanvas2D implements Plotter {
 
     public drawEllipsis(ellipsis: IEllipse[], color: string): void {
         this.context.fillStyle = color;
+
+        if (typeof this.context.ellipse !== "function") {
+            this.context.ellipse = ellipsePolyfill;
+        }
 
         for (const ellipse of ellipsis) {
             this.context.beginPath();
