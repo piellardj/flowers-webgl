@@ -30,10 +30,6 @@ Page.Button.addObserver(controlId.DOWNLOAD_BUTTON, () => {
     }
 });
 
-function rgbToHexa(rgb: any): string {
-    return `#${rgb.r.toString(16)}${rgb.g.toString(16)}${rgb.b.toString(16)}`;
-}
-
 /* === INTERFACE ====================================================== */
 class Parameters {
     public static get mousePositionInPixels(): IPoint {
@@ -67,13 +63,11 @@ class Parameters {
     }
 
     public static get backgroundColor(): string {
-        const color = Page.ColorPicker.getValue(controlId.BACKGROUND_COLORPICKER);
-        return rgbToHexa(color);
+        return Page.ColorPicker.getValueHex(controlId.BACKGROUND_COLORPICKER);
     }
 
     public static get linesColor(): string {
-        const color = Page.ColorPicker.getValue(controlId.LINES_COLORPICKER);
-        return rgbToHexa(color);
+        return Page.ColorPicker.getValueHex(controlId.LINES_COLORPICKER);
     }
 
     public static addDownloadObserver(observer: Observer): void {
