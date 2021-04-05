@@ -18,9 +18,10 @@ function main() {
     const plotter = new PlotterCanvas2D();
     const flowersManager = new FlowersManager();
 
-    Parameters.addResetObserver(() => flowersManager.reset());
-    Parameters.addDownloadObserver(() => exportAsSvg(flowersManager, plotter.width, plotter.height));
+    Parameters.addResetObserver(() => { flowersManager.reset(); });
+    Parameters.addDownloadObserver(() => { exportAsSvg(flowersManager, plotter.width, plotter.height); });
     Parameters.addPetalColorChange(() => { flowersManager.resetPetalColors(); });
+
     const maxDt = 1 / 60;
     let lastUpdate = performance.now();
     function mainLoop() {
