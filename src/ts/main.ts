@@ -4,6 +4,7 @@ import { downloadTextFile } from "./helpers";
 import { Parameters } from "./parameters";
 import { Plotter } from "./plotting/plotter";
 import { PlotterCanvas2D } from "./plotting/plotter-canvas-2d";
+import { PlotterCanvas } from "./plotting/plotter-canvas-base";
 import { PlotterSvg } from "./plotting/plotter-svg";
 
 import "./page-interface-generated";
@@ -15,7 +16,7 @@ function plot(flowersManager: FlowersManager, plotter: Plotter): void {
 }
 
 function main() {
-    const plotter = new PlotterCanvas2D();
+    const plotter: PlotterCanvas = new PlotterCanvas2D();
     const flowersManager = new FlowersManager();
 
     Parameters.addResetObserver(() => { flowersManager.reset(); });

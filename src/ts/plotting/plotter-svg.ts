@@ -7,12 +7,13 @@ function radianToDegree(radian: number) {
     return 180 * radian / Math.PI;
 }
 
-class PlotterSvg implements Plotter {
+class PlotterSvg extends Plotter {
     private readonly stringParts: string[];
     private readonly width: number;
     private readonly height: number;
 
     public constructor(width: number, height: number) {
+        super();
         this.stringParts = [];
         this.width = width;
         this.height = height;

@@ -1,5 +1,6 @@
 import { IEllipse, IPoint } from "../interfaces";
-import { Line, Plotter } from "./plotter";
+import { Line } from "./plotter";
+import { PlotterCanvas } from "./plotter-canvas-base";
 
 import "../page-interface-generated";
 
@@ -7,31 +8,12 @@ function ellipsePolyfill(this: CanvasRenderingContext2D, centerX: number, center
     this.arc(centerX, centerY, Math.max(radiusX, radiusY), 0, 2 * Math.PI);
 }
 
-class PlotterCanvas2D implements Plotter {
-    private readonly canvas: HTMLCanvasElement;
+class PlotterCanvas2D extends PlotterCanvas {
     private readonly context: CanvasRenderingContext2D;
-    private readonly cssPixel: number;
-
-    private _width: number;
-    private _height: number;
 
     public constructor() {
-        this.canvas = Page.Canvas.getCanvas();
+        super();
         this.context = this.canvas.getContext("2d", { alpha: false });
-        this.cssPixel = window.devicePixelRatio ?? 1;
-    }
-
-    public adjustToCanvas(): void {
-        const actualWidth = Math.floor(this.cssPixel * this.canvas.clientWidth);
-        const actualHeight = Math.floor(this.cssPixel * this.canvas.clientHeight);
-
-        if (this.canvas.width !== actualWidth || this.canvas.height !== actualHeight) {
-            this.canvas.width = actualWidth;
-            this.canvas.height = actualHeight;
-        }
-
-        this._width = this.canvas.clientWidth;
-        this._height = this.canvas.clientHeight;
     }
 
     public initialize(backgroundColor: string): void {
@@ -96,14 +78,6 @@ class PlotterCanvas2D implements Plotter {
             this.context.fill();
             this.context.closePath();
         }
-    }
-
-    public get width(): number {
-        return this._width;
-    }
-
-    public get height(): number {
-        return this._height;
     }
 }
 
