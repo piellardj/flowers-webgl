@@ -6,6 +6,24 @@ import { gl, initGL } from "../gl-utils/gl-canvas";
 import "../page-interface-generated";
 
 
+interface IRGB {
+    r: number; // in [0, 1]
+    g: number; // in [0, 1]
+    b: number; // in [0, 1]
+}
+
+function parseRGB(hexaColor: string): IRGB {
+    const redHex = hexaColor.substring(1, 3);
+    const greenHex = hexaColor.substring(3, 5);
+    const blueHex = hexaColor.substring(5, 7);
+
+    return {
+        r: parseInt(redHex, 16) / 255,
+        g: parseInt(greenHex, 16) / 255,
+        b: parseInt(blueHex, 16) / 255,
+    };
+}
+
 class PlotterCanvasWebGL extends PlotterCanvas {
     private readonly context: CanvasRenderingContext2D;
 
@@ -18,15 +36,10 @@ class PlotterCanvasWebGL extends PlotterCanvas {
     }
 
     public initialize(backgroundColor: string): void {
-        const redHex = backgroundColor.substring(1, 3);
-        const greenHex = backgroundColor.substring(3, 5);
-        const blueHex = backgroundColor.substring(5, 7);
+        const rgb = parseRGB(backgroundColor);
 
-        const r = parseInt(redHex, 16);
-        const g = parseInt(greenHex, 16);
-        const b = parseInt(blueHex, 16);
-
-        gl.clearColor(r / 255, g / 255, b / 255, 1);
+        gl.viewport(0, 0, this.width, this.height);
+        gl.clearColor(rgb.r, rgb.g, rgb.b, 1);
         gl.clear(gl.COLOR_BUFFER_BIT);
     }
 
