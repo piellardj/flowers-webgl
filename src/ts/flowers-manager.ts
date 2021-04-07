@@ -17,7 +17,10 @@ class FlowersManager {
     }
 
     public manage(domainWidth: number, domainHeight: number): void {
-        const idealNumberOfFlowers = Math.round(domainWidth * Parameters.flowersDensity);
+        let idealNumberOfFlowers = Math.round(domainWidth * Parameters.flowersDensity);
+        if (idealNumberOfFlowers <= 0) {
+            idealNumberOfFlowers = 1;
+        }
 
         // create new flowers if needed
         while (this.flowers.length < idealNumberOfFlowers) {
