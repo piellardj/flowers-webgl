@@ -1,7 +1,11 @@
 import { IEllipse, IPoint } from "../interfaces";
 import { Line } from "./plotter";
 import { PlotterCanvas } from "./plotter-canvas-base";
+
 import { gl, initGL } from "../gl-utils/gl-canvas";
+import { Shader } from "../gl-utils/shader";
+import * as ShaderManager from "../gl-utils/shader-manager";
+import { VBO } from "../gl-utils/vbo";
 
 import "../page-interface-generated";
 
@@ -25,7 +29,8 @@ function parseRGB(hexaColor: string): IRGB {
 }
 
 class PlotterCanvasWebGL extends PlotterCanvas {
-    private readonly context: CanvasRenderingContext2D;
+    private stemsShader: Shader;
+    private readonly stemsVBOId: WebGLBuffer;
 
     public constructor() {
         super();
@@ -33,6 +38,21 @@ class PlotterCanvasWebGL extends PlotterCanvas {
         if (!initGL()) {
             throw new Error("Failed to initialize WebGL.");
         }
+
+        this.stemsVBOId = gl.createBuffer();
+
+        ShaderManager.buildShader({
+            vertexFilename: "stems.vert",
+            fragmentFilename: "stems.frag",
+            injected: {},
+        }, (builtShader: Shader | null) => {
+            if (builtShader === null) {
+                const errorMessage = `Failed to load or build the stems shader.`;
+                Page.Demopage.setErrorMessage(`shader-stems`, errorMessage);
+                throw new Error(errorMessage);
+            }
+            this.stemsShader = builtShader;
+        });
     }
 
     public initialize(backgroundColor: string): void {
@@ -47,6 +67,47 @@ class PlotterCanvasWebGL extends PlotterCanvas {
     public finalize(): void { }
 
     public drawLines(lines: Line[], color: string): void {
+        if (this.stemsShader && lines.length > 0) {
+            let totalNbLines = 0;
+            for (const line of lines) {
+                if (line.length >= 2) {
+                    totalNbLines += line.length - 1;
+                }
+            }
+
+            let i = 0;
+            const buffer = new Float32Array(2 * 2 * totalNbLines);
+            for (const line of lines) {
+                if (line.length >= 2) {
+                    buffer[i++] = line[0].x;
+                    buffer[i++] = line[0].y;
+
+                    for (let iP = 1; iP < line.length - 1; iP++) {
+                        buffer[i++] = line[iP].x;
+                        buffer[i++] = line[iP].y;
+                        buffer[i++] = line[iP].x;
+                        buffer[i++] = line[iP].y;
+                    }
+
+                    buffer[i++] = line[line.length - 1].x;
+                    buffer[i++] = line[line.length - 1].y;
+                }
+            }
+
+            const rgb = parseRGB(color);
+
+            this.stemsShader.u["uScreenSize"].value = [this.width, this.height];
+            this.stemsShader.u["uColor"].value = [rgb.r, rgb.g, rgb.b, 1];
+
+            this.stemsShader.use();
+            this.stemsShader.bindUniforms();
+
+            gl.enableVertexAttribArray(this.stemsShader.a["aVertex"].loc);
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.stemsVBOId);
+            gl.bufferData(gl.ARRAY_BUFFER, buffer, gl.DYNAMIC_DRAW);
+            gl.vertexAttribPointer(this.stemsShader.a["aVertex"].loc, 2, gl.FLOAT, false, 0, 0);
+            gl.drawArrays(gl.LINES, 0, 2 * totalNbLines);
+        }
     }
 
     public drawPolygon(polygon: Line, offset: IPoint, strokeColor: string, fillColor: string): void {
