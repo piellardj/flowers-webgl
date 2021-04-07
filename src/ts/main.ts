@@ -8,6 +8,7 @@ import { PlotterCanvas } from "./plotting/plotter-canvas-base";
 import { PlotterSvg } from "./plotting/plotter-svg";
 
 import "./page-interface-generated";
+import { PlotterCanvasWebGL } from "./plotting/plotter-canvas-webgl";
 
 function plot(flowersManager: FlowersManager, plotter: Plotter): void {
     plotter.initialize(Parameters.backgroundColor);
@@ -16,7 +17,7 @@ function plot(flowersManager: FlowersManager, plotter: Plotter): void {
 }
 
 function main() {
-    const plotter: PlotterCanvas = new PlotterCanvas2D();
+    const plotter: PlotterCanvas = new PlotterCanvasWebGL() || new PlotterCanvas2D();
     const flowersManager = new FlowersManager();
 
     Parameters.addResetObserver(() => { flowersManager.reset(); });
