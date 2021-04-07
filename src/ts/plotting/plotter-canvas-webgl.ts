@@ -58,7 +58,7 @@ class PlotterCanvasWebGL extends PlotterCanvas {
     public initialize(backgroundColor: string): void {
         const rgb = parseRGB(backgroundColor);
 
-        gl.viewport(0, 0, this.width, this.height);
+        gl.viewport(0, 0, this.width * this.cssPixel, this.height * this.cssPixel);
         gl.clearColor(rgb.r, rgb.g, rgb.b, 1);
         gl.clear(gl.COLOR_BUFFER_BIT);
     }
