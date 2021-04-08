@@ -95,49 +95,8 @@ class PlotterCanvasWebGL extends PlotterCanvas {
 
     // tslint:disable-next-line no-empty
     public finalize(): void {
-        if (this.petalsShader && this.ellipseBatches.length > 0) {
-            let totalNbPoints = 0;
-            for (const ellipseBatch of this.ellipseBatches) {
-                totalNbPoints += ellipseBatch.ellipseList.length;
-            }
-
-            let i = 0;
-            const buffer = new Float32Array(8 * totalNbPoints);
-            for (const ellipseBatch of this.ellipseBatches) {
-                for (const ellipse of ellipseBatch.ellipseList) {
-                    buffer[i++] = ellipse.center.x;
-                    buffer[i++] = ellipse.center.y;
-                    buffer[i++] = Math.max(ellipse.width, ellipse.height);
-                    buffer[i++] = Math.min(ellipse.width, ellipse.height) / Math.max(ellipse.width, ellipse.height);
-
-                    buffer[i++] = ellipseBatch.color.r;
-                    buffer[i++] = ellipseBatch.color.g;
-                    buffer[i++] = ellipseBatch.color.b;
-                    buffer[i++] = ellipse.orientation;
-                }
-            }
-
-            this.petalsShader.u["uScreenSize"].value = [this.width, this.height];
-            this.petalsShader.u["uPetalAlpha"].value = 0.2;
-
-            this.petalsShader.use();
-            this.petalsShader.bindUniforms();
-        
-            // gl.depthMask(false); // don't write to depth buffer
-
-            const BYTES_PER_FLOAT = 4;
-            gl.bindBuffer(gl.ARRAY_BUFFER, this.petalsVBOId);
-            gl.bufferData(gl.ARRAY_BUFFER, buffer, gl.DYNAMIC_DRAW);
-            const aData1Loc = this.petalsShader.a["aData1"].loc;
-            gl.enableVertexAttribArray(aData1Loc);
-            gl.vertexAttribPointer(aData1Loc, 4, gl.FLOAT, false, 2 * 4 * BYTES_PER_FLOAT, 0);
-            const aData2Loc = this.petalsShader.a["aData2"].loc;
-            gl.enableVertexAttribArray(aData2Loc);
-            gl.vertexAttribPointer(aData2Loc, 4, gl.FLOAT, false, 2 * 4 * BYTES_PER_FLOAT, 4 * BYTES_PER_FLOAT);
-            gl.drawArrays(gl.POINTS, 0, totalNbPoints);
-
-            this.ellipseBatches = [];
-        }
+        this.drawEllipseBatches();
+        this.ellipseBatches = [];
     }
 
     public drawLines(lines: Line[], color: string): void {
@@ -201,6 +160,52 @@ class PlotterCanvasWebGL extends PlotterCanvas {
             ellipseList: ellipsis,
             color: colorRgb,
         });
+    }
+
+    private drawEllipseBatches(): void {
+        if (this.petalsShader && this.ellipseBatches.length > 0) {
+            let totalNbPoints = 0;
+            for (const ellipseBatch of this.ellipseBatches) {
+                totalNbPoints += ellipseBatch.ellipseList.length;
+            }
+
+            let i = 0;
+            const buffer = new Float32Array(8 * totalNbPoints);
+            for (const ellipseBatch of this.ellipseBatches) {
+                for (const ellipse of ellipseBatch.ellipseList) {
+                    buffer[i++] = ellipse.center.x;
+                    buffer[i++] = ellipse.center.y;
+                    buffer[i++] = Math.max(ellipse.width, ellipse.height);
+                    buffer[i++] = Math.min(ellipse.width, ellipse.height) / Math.max(ellipse.width, ellipse.height);
+
+                    buffer[i++] = ellipseBatch.color.r;
+                    buffer[i++] = ellipseBatch.color.g;
+                    buffer[i++] = ellipseBatch.color.b;
+                    buffer[i++] = ellipse.orientation;
+                }
+            }
+
+            this.petalsShader.u["uScreenSize"].value = [this.width, this.height];
+            this.petalsShader.u["uPetalAlpha"].value = 0.2;
+
+            this.petalsShader.use();
+            this.petalsShader.bindUniforms();
+        
+            // gl.depthMask(false); // don't write to depth buffer
+
+            const BYTES_PER_FLOAT = 4;
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.petalsVBOId);
+            gl.bufferData(gl.ARRAY_BUFFER, buffer, gl.DYNAMIC_DRAW);
+            const aData1Loc = this.petalsShader.a["aData1"].loc;
+            gl.enableVertexAttribArray(aData1Loc);
+            gl.vertexAttribPointer(aData1Loc, 4, gl.FLOAT, false, 2 * 4 * BYTES_PER_FLOAT, 0);
+            const aData2Loc = this.petalsShader.a["aData2"].loc;
+            gl.enableVertexAttribArray(aData2Loc);
+            gl.vertexAttribPointer(aData2Loc, 4, gl.FLOAT, false, 2 * 4 * BYTES_PER_FLOAT, 4 * BYTES_PER_FLOAT);
+            gl.drawArrays(gl.POINTS, 0, totalNbPoints);
+
+            this.ellipseBatches = [];
+        }
     }
 }
 
