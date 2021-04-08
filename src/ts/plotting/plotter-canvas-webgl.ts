@@ -21,6 +21,11 @@ interface IEllipseBatch {
     // depth: number;
 }
 
+interface IPolygon {
+    outline: IPoint[];
+    center: IPoint;
+}
+
 function parseRGB(hexaColor: string): IRGB {
     const redHex = hexaColor.substring(1, 3);
     const greenHex = hexaColor.substring(3, 5);
@@ -40,7 +45,12 @@ class PlotterCanvasWebGL extends PlotterCanvas {
     private petalsShader: Shader;
     private readonly petalsVBOId: WebGLBuffer;
 
+    private corollaShader: Shader;
+    private readonly corollaVBOId: WebGLBuffer;
+    private readonly corollaIndexVBOId: WebGLBuffer;
+
     private ellipseBatches: IEllipseBatch[];
+    private polygonsBatch: IPolygon[];
 
     public constructor() {
         super();
@@ -55,6 +65,8 @@ class PlotterCanvasWebGL extends PlotterCanvas {
 
         this.stemsVBOId = gl.createBuffer();
         this.petalsVBOId = gl.createBuffer();
+        this.corollaVBOId = gl.createBuffer();
+        this.corollaIndexVBOId = gl.createBuffer();
 
         ShaderManager.buildShader({
             vertexFilename: "stems.vert",
@@ -81,6 +93,19 @@ class PlotterCanvasWebGL extends PlotterCanvas {
             }
             this.petalsShader = builtShader;
         });
+
+        ShaderManager.buildShader({
+            vertexFilename: "corolla.vert",
+            fragmentFilename: "corolla.frag",
+            injected: {},
+        }, (builtShader: Shader | null) => {
+            if (builtShader === null) {
+                const errorMessage = `Failed to load or build the corolla shader.`;
+                Page.Demopage.setErrorMessage(`shader-corolla`, errorMessage);
+                throw new Error(errorMessage);
+            }
+            this.corollaShader = builtShader;
+        });
     }
 
     public initialize(backgroundColor: string): void {
@@ -91,11 +116,15 @@ class PlotterCanvasWebGL extends PlotterCanvas {
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
         this.ellipseBatches = [];
+        this.polygonsBatch = [];
     }
 
     // tslint:disable-next-line no-empty
     public finalize(): void {
-        this.drawEllipseBatches();
+        this.drawPolygonsBatch();
+        this.polygonsBatch = [];
+
+        // this.drawEllipseBatches();
         this.ellipseBatches = [];
     }
 
@@ -145,6 +174,18 @@ class PlotterCanvasWebGL extends PlotterCanvas {
     }
 
     public drawPolygon(polygon: Line, offset: IPoint, strokeColor: string, fillColor: string): void {
+        const line: IPoint[] = [];
+        for (const point of polygon) {
+            line.push({
+                x: point.x + offset.x,
+                y: point.y + offset.y,
+            });
+        }
+
+        this.polygonsBatch.push({
+            outline: line,
+            center: offset,
+        })
     }
 
     public drawEllipsis(ellipsis: IEllipse[], color: string): void {
@@ -160,6 +201,93 @@ class PlotterCanvasWebGL extends PlotterCanvas {
             ellipseList: ellipsis,
             color: colorRgb,
         });
+    }
+
+    private drawPolygonsBatch(): void {
+        if (this.corollaShader && this.polygonsBatch.length > 0) {
+            let totalNbVertices = 0;
+            let totalNbTriangles = 0;
+            let totalNbLines = 0;
+            for (const polygon of this.polygonsBatch) {
+                totalNbVertices += 1 + polygon.outline.length;
+                totalNbTriangles += polygon.outline.length;
+                totalNbLines += polygon.outline.length;
+            }
+
+            let iVertice = 0;
+            let iPolygon = 0;
+            const verticesBuffer = new Float32Array(4 * totalNbVertices);
+            for (const polygon of this.polygonsBatch) {
+                const polygonDepth = 1 - iPolygon / this.polygonsBatch.length;
+                verticesBuffer[iVertice++] = polygon.center.x;
+                verticesBuffer[iVertice++] = polygon.center.y;
+                verticesBuffer[iVertice++] = polygonDepth;
+                verticesBuffer[iVertice++] = 0; // padding for alignment
+
+                for (const outlinePoint of polygon.outline) {
+                    verticesBuffer[iVertice++] = outlinePoint.x;
+                    verticesBuffer[iVertice++] = outlinePoint.y;
+                    verticesBuffer[iVertice++] = polygonDepth;
+                    verticesBuffer[iVertice++] = 0; // padding for alignment
+                }
+
+                iPolygon++;
+            }
+
+            let iIndex = 0;
+            let iVerticeIndex = 0;
+            const indicesBuffer = new Uint16Array(2 * totalNbLines + 3 * totalNbTriangles);
+            for (const polygon of this.polygonsBatch) {
+                const indexOfPolygonCenter = iVerticeIndex;
+
+                for (let iPoint = 0; iPoint < polygon.outline.length - 1; iPoint++) {
+                    indicesBuffer[iIndex++] = indexOfPolygonCenter;
+                    indicesBuffer[iIndex++] = indexOfPolygonCenter + iPoint + 1;
+                    indicesBuffer[iIndex++] = indexOfPolygonCenter + iPoint + 2;
+                }
+                indicesBuffer[iIndex++] = indexOfPolygonCenter;
+                indicesBuffer[iIndex++] = indexOfPolygonCenter + polygon.outline.length;
+                indicesBuffer[iIndex++] = indexOfPolygonCenter + 1;
+
+                iVerticeIndex += polygon.outline.length + 1;
+            }
+
+            iVerticeIndex = 0;
+            for (const polygon of this.polygonsBatch) {
+                for (let iPoint = 0; iPoint < polygon.outline.length - 1; iPoint++) {
+                    indicesBuffer[iIndex++] = iVerticeIndex + iPoint + 1;
+                    indicesBuffer[iIndex++] = iVerticeIndex + iPoint + 2;
+                }
+                indicesBuffer[iIndex++] = iVerticeIndex + polygon.outline.length;
+                indicesBuffer[iIndex++] = iVerticeIndex + 1;
+
+                iVerticeIndex += polygon.outline.length + 1;
+            }
+
+            this.corollaShader.u["uScreenSize"].value = [this.width, this.height];
+
+            this.corollaShader.use();
+            this.corollaShader.u["uColor"].value = [1, 0, 0, 1];
+            this.corollaShader.bindUniforms();
+
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.corollaVBOId);
+            gl.bufferData(gl.ARRAY_BUFFER, verticesBuffer, gl.DYNAMIC_DRAW);
+            const aDataLoc = this.corollaShader.a["aData"].loc;
+            gl.enableVertexAttribArray(aDataLoc);
+            gl.vertexAttribPointer(aDataLoc, 4, gl.FLOAT, false, 0, 0);
+
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.corollaIndexVBOId);
+            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indicesBuffer, gl.DYNAMIC_DRAW);
+
+            gl.depthMask(true);
+            gl.drawElements(gl.TRIANGLES, 3 * totalNbTriangles, gl.UNSIGNED_SHORT, 0);
+            gl.depthMask(false);
+
+            this.corollaShader.u["uColor"].value = [0, 0, 0, 1];
+            this.corollaShader.bindUniforms();
+            const UNSIGNED_SHORT_SIZE_IN_BYTES = 2;
+            gl.drawElements(gl.LINES, 2 * totalNbLines, gl.UNSIGNED_SHORT, 3 * totalNbTriangles * UNSIGNED_SHORT_SIZE_IN_BYTES);
+        }
     }
 
     private drawEllipseBatches(): void {
@@ -190,7 +318,7 @@ class PlotterCanvasWebGL extends PlotterCanvas {
 
             this.petalsShader.use();
             this.petalsShader.bindUniforms();
-        
+
             // gl.depthMask(false); // don't write to depth buffer
 
             const BYTES_PER_FLOAT = 4;
