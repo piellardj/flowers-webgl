@@ -5,7 +5,6 @@ import { PlotterCanvas } from "./plotter-canvas-base";
 import { gl, initGL } from "../gl-utils/gl-canvas";
 import { Shader } from "../gl-utils/shader";
 import * as ShaderManager from "../gl-utils/shader-manager";
-import { VBO } from "../gl-utils/vbo";
 
 import "../page-interface-generated";
 
@@ -14,6 +13,12 @@ interface IRGB {
     r: number; // in [0, 1]
     g: number; // in [0, 1]
     b: number; // in [0, 1]
+}
+
+interface IEllipseBatch {
+    ellipseList: IEllipse[];
+    color: IRGB;
+    // depth: number;
 }
 
 function parseRGB(hexaColor: string): IRGB {
@@ -32,14 +37,24 @@ class PlotterCanvasWebGL extends PlotterCanvas {
     private stemsShader: Shader;
     private readonly stemsVBOId: WebGLBuffer;
 
+    private petalsShader: Shader;
+    private readonly petalsVBOId: WebGLBuffer;
+
+    private ellipseBatches: IEllipseBatch[];
+
     public constructor() {
         super();
 
         if (!initGL()) {
             throw new Error("Failed to initialize WebGL.");
         }
+        gl.enable(gl.BLEND);
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
+        gl.enable(gl.DEPTH_TEST);
+        gl.depthFunc(gl.LEQUAL);
 
         this.stemsVBOId = gl.createBuffer();
+        this.petalsVBOId = gl.createBuffer();
 
         ShaderManager.buildShader({
             vertexFilename: "stems.vert",
@@ -53,6 +68,19 @@ class PlotterCanvasWebGL extends PlotterCanvas {
             }
             this.stemsShader = builtShader;
         });
+
+        ShaderManager.buildShader({
+            vertexFilename: "petals.vert",
+            fragmentFilename: "petals.frag",
+            injected: {},
+        }, (builtShader: Shader | null) => {
+            if (builtShader === null) {
+                const errorMessage = `Failed to load or build the petals shader.`;
+                Page.Demopage.setErrorMessage(`shader-petals`, errorMessage);
+                throw new Error(errorMessage);
+            }
+            this.petalsShader = builtShader;
+        });
     }
 
     public initialize(backgroundColor: string): void {
@@ -60,11 +88,57 @@ class PlotterCanvasWebGL extends PlotterCanvas {
 
         gl.viewport(0, 0, this.width * this.cssPixel, this.height * this.cssPixel);
         gl.clearColor(rgb.r, rgb.g, rgb.b, 1);
-        gl.clear(gl.COLOR_BUFFER_BIT);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+        this.ellipseBatches = [];
     }
 
     // tslint:disable-next-line no-empty
-    public finalize(): void { }
+    public finalize(): void {
+        if (this.petalsShader && this.ellipseBatches.length > 0) {
+            let totalNbPoints = 0;
+            for (const ellipseBatch of this.ellipseBatches) {
+                totalNbPoints += ellipseBatch.ellipseList.length;
+            }
+
+            let i = 0;
+            const buffer = new Float32Array(8 * totalNbPoints);
+            for (const ellipseBatch of this.ellipseBatches) {
+                for (const ellipse of ellipseBatch.ellipseList) {
+                    buffer[i++] = ellipse.center.x;
+                    buffer[i++] = ellipse.center.y;
+                    buffer[i++] = Math.max(ellipse.width, ellipse.height);
+                    buffer[i++] = Math.min(ellipse.width, ellipse.height) / Math.max(ellipse.width, ellipse.height);
+
+                    buffer[i++] = ellipseBatch.color.r;
+                    buffer[i++] = ellipseBatch.color.g;
+                    buffer[i++] = ellipseBatch.color.b;
+                    buffer[i++] = ellipse.orientation;
+                }
+            }
+
+            this.petalsShader.u["uScreenSize"].value = [this.width, this.height];
+            this.petalsShader.u["uPetalAlpha"].value = 0.2;
+
+            this.petalsShader.use();
+            this.petalsShader.bindUniforms();
+        
+            // gl.depthMask(false); // don't write to depth buffer
+
+            const BYTES_PER_FLOAT = 4;
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.petalsVBOId);
+            gl.bufferData(gl.ARRAY_BUFFER, buffer, gl.DYNAMIC_DRAW);
+            const aData1Loc = this.petalsShader.a["aData1"].loc;
+            gl.enableVertexAttribArray(aData1Loc);
+            gl.vertexAttribPointer(aData1Loc, 4, gl.FLOAT, false, 2 * 4 * BYTES_PER_FLOAT, 0);
+            const aData2Loc = this.petalsShader.a["aData2"].loc;
+            gl.enableVertexAttribArray(aData2Loc);
+            gl.vertexAttribPointer(aData2Loc, 4, gl.FLOAT, false, 2 * 4 * BYTES_PER_FLOAT, 4 * BYTES_PER_FLOAT);
+            gl.drawArrays(gl.POINTS, 0, totalNbPoints);
+
+            this.ellipseBatches = [];
+        }
+    }
 
     public drawLines(lines: Line[], color: string): void {
         if (this.stemsShader && lines.length > 0) {
@@ -75,8 +149,8 @@ class PlotterCanvasWebGL extends PlotterCanvas {
                 }
             }
 
-            let i = 0;
             const buffer = new Float32Array(2 * 2 * totalNbLines);
+            let i = 0;
             for (const line of lines) {
                 if (line.length >= 2) {
                     buffer[i++] = line[0].x;
@@ -102,10 +176,11 @@ class PlotterCanvasWebGL extends PlotterCanvas {
             this.stemsShader.use();
             this.stemsShader.bindUniforms();
 
-            gl.enableVertexAttribArray(this.stemsShader.a["aVertex"].loc);
             gl.bindBuffer(gl.ARRAY_BUFFER, this.stemsVBOId);
             gl.bufferData(gl.ARRAY_BUFFER, buffer, gl.DYNAMIC_DRAW);
-            gl.vertexAttribPointer(this.stemsShader.a["aVertex"].loc, 2, gl.FLOAT, false, 0, 0);
+            const aVertexLoc = this.stemsShader.a["aVertex"].loc;
+            gl.enableVertexAttribArray(aVertexLoc);
+            gl.vertexAttribPointer(aVertexLoc, 2, gl.FLOAT, false, 0, 0);
             gl.drawArrays(gl.LINES, 0, 2 * totalNbLines);
         }
     }
@@ -114,6 +189,18 @@ class PlotterCanvasWebGL extends PlotterCanvas {
     }
 
     public drawEllipsis(ellipsis: IEllipse[], color: string): void {
+        const substring = color.substring(5, color.length - 1);
+        const channelsAsString = substring.split(", ");
+        const colorRgb: IRGB = {
+            r: +channelsAsString[0] / 255,
+            g: +channelsAsString[1] / 255,
+            b: +channelsAsString[2] / 255,
+        };
+
+        this.ellipseBatches.push({
+            ellipseList: ellipsis,
+            color: colorRgb,
+        });
     }
 }
 
