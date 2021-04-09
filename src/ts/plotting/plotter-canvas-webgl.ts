@@ -38,6 +38,21 @@ interface IPolygonsBatch extends IBatch {
     center: IPoint;
 }
 
+function loadShader(name: string, callback: (loadedShader: Shader) => unknown): void {
+    ShaderManager.buildShader({
+        vertexFilename: `${name}.vert`,
+        fragmentFilename: `${name}.frag`,
+        injected: {},
+    }, (builtShader: Shader | null) => {
+        if (builtShader === null) {
+            const errorMessage = `Failed to load or build the ${name} shader.`;
+            Page.Demopage.setErrorMessage(`shader-${name}`, errorMessage);
+            throw new Error(errorMessage);
+        }
+        callback(builtShader);
+    });
+}
+
 class PlotterCanvasWebGL extends PlotterCanvas {
     private linesShader: Shader;
     private readonly linesVBOId: WebGLBuffer;
@@ -69,44 +84,9 @@ class PlotterCanvasWebGL extends PlotterCanvas {
         this.corollaVBOId = gl.createBuffer();
         this.corollaIndexVBOId = gl.createBuffer();
 
-        ShaderManager.buildShader({
-            vertexFilename: "lines.vert",
-            fragmentFilename: "lines.frag",
-            injected: {},
-        }, (builtShader: Shader | null) => {
-            if (builtShader === null) {
-                const errorMessage = `Failed to load or build the lines shader.`;
-                Page.Demopage.setErrorMessage(`shader-lines`, errorMessage);
-                throw new Error(errorMessage);
-            }
-            this.linesShader = builtShader;
-        });
-
-        ShaderManager.buildShader({
-            vertexFilename: "ellipses.vert",
-            fragmentFilename: "ellipses.frag",
-            injected: {},
-        }, (builtShader: Shader | null) => {
-            if (builtShader === null) {
-                const errorMessage = `Failed to load or build the ellipses shader.`;
-                Page.Demopage.setErrorMessage(`shader-ellipses`, errorMessage);
-                throw new Error(errorMessage);
-            }
-            this.ellipsesShader = builtShader;
-        });
-
-        ShaderManager.buildShader({
-            vertexFilename: "polygons.vert",
-            fragmentFilename: "polygons.frag",
-            injected: {},
-        }, (builtShader: Shader | null) => {
-            if (builtShader === null) {
-                const errorMessage = `Failed to load or build the polygons shader.`;
-                Page.Demopage.setErrorMessage(`shader-polygons`, errorMessage);
-                throw new Error(errorMessage);
-            }
-            this.polygonsShader = builtShader;
-        });
+        loadShader("lines", (shader: Shader) => { this.linesShader = shader; });
+        loadShader("ellipses", (shader: Shader) => { this.ellipsesShader = shader; });
+        loadShader("polygons", (shader: Shader) => { this.polygonsShader = shader; });
     }
 
     public initializeInternal(): void {
