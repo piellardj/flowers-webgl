@@ -30,7 +30,7 @@ class PlotterCanvas2D extends PlotterCanvas {
         if (lines.length >= 1) {
             this.context.strokeStyle = this.lineColor.toStringRGB();
             this.context.lineWidth = 1; // do not adapt with cssPixel for performance reasons on mobile devices
-            
+
             this.context.beginPath();
 
             for (const line of lines) {

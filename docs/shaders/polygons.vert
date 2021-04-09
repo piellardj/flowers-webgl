@@ -1,5 +1,5 @@
 // xy: position in pixels
-// z: depth in [0, 1]
+// z: depth in [-1, 1]
 attribute vec4 aData;
 
 uniform vec2 uScreenSize; // in pixels
