@@ -136,9 +136,13 @@ class PlotterCanvasWebGL extends PlotterCanvas {
         if (linesBatch.length > 0) {
             this.drawLinesBatches(linesBatch);
         }
+
+        gl.depthMask(true); // write to depth buffer
         if (polygonsBatch.length > 0) {
             this.drawPolygonsBatches(polygonsBatch);
         }
+
+        gl.depthMask(false); // don't write to depth buffer because ellipses are not opaque
         if (ellipsesBatch.length > 0) {
             this.drawEllipseBatches(ellipsesBatch);
         }
@@ -348,11 +352,17 @@ class PlotterCanvasWebGL extends PlotterCanvas {
             {
                 let i = 0;
                 for (const ellipseBatch of batches) {
+                    const batchDepth = this.computeBatchDepth(ellipseBatch);
+
                     for (const ellipse of ellipseBatch.ellipsesList) {
+                        const widestSide = Math.ceil(Math.max(1, ellipse.width, ellipse.height)); // integer
+                        const proportions = Math.min(ellipse.width, ellipse.height) / widestSide; // in [0, 1]
+                        const encodedDimensions = Math.ceil(widestSide * this.cssPixel) + proportions;
+
                         buffer[i++] = ellipse.center.x;
                         buffer[i++] = ellipse.center.y;
-                        buffer[i++] = Math.max(ellipse.width, ellipse.height);
-                        buffer[i++] = Math.min(ellipse.width, ellipse.height) / Math.max(ellipse.width, ellipse.height);
+                        buffer[i++] = encodedDimensions;
+                        buffer[i++] = batchDepth;
 
                         buffer[i++] = ellipseBatch.color.rNormalized;
                         buffer[i++] = ellipseBatch.color.gNormalized;

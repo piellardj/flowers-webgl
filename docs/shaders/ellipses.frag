@@ -2,7 +2,7 @@ precision lowp float;
 
 varying vec4 vColor;
 
-// x: proportions
+// x: proportions in [0, 1]
 // y: cos(-rotation)
 // z: sin(-rotation)
 // w: useless, padding for alignment
