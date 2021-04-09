@@ -98,7 +98,7 @@ class Corolla {
     private drawPetals(plotter: Plotter): void {
         const allPetals = this.attachedPetals.concat(this.floatingPetals);
         const color = Parameters.singlePetalColor ? Parameters.petalColor : this.color;
-        plotter.drawEllipsis(allPetals, color);
+        plotter.drawEllipses(allPetals, color);
     }
 
     private drawOutline(plotter: Plotter): void {

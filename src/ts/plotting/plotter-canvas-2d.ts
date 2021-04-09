@@ -66,14 +66,14 @@ class PlotterCanvas2D extends PlotterCanvas {
         }
     }
 
-    public drawEllipsis(ellipsis: IEllipse[], color: Color): void {
+    public drawEllipses(ellipses: IEllipse[], color: Color): void {
         this.context.fillStyle = color.toStringRGBA(this.ellipseOpacity);
 
         if (typeof this.context.ellipse !== "function") {
             this.context.ellipse = ellipsePolyfill;
         }
 
-        for (const ellipse of ellipsis) {
+        for (const ellipse of ellipses) {
             this.context.beginPath();
             this.context.ellipse(ellipse.center.x * this.cssPixel, ellipse.center.y * this.cssPixel, 0.5 * ellipse.width * this.cssPixel, 0.5 * ellipse.height * this.cssPixel, ellipse.orientation, 0, 2 * Math.PI);
             this.context.fill();

@@ -192,11 +192,11 @@ class PlotterCanvasWebGL extends PlotterCanvas {
         }
     }
 
-    public drawEllipsis(ellipsis: IEllipse[], color: Color): void {
-        if (ellipsis.length > 0) {
+    public drawEllipses(ellipses: IEllipse[], color: Color): void {
+        if (ellipses.length > 0) {
             const ellipsesBatch: IEllipsesBatch = {
                 type: EBatchType.ELLIPSES,
-                ellipsesList: ellipsis,
+                ellipsesList: ellipses,
                 color,
                 batchId: this.batches.length,
             };

@@ -58,10 +58,10 @@ class PlotterSvg extends Plotter {
         }
     }
 
-    public drawEllipsis(ellipsis: IEllipse[], color: Color): void {
-        if (ellipsis.length >= 1) {
+    public drawEllipses(ellipses: IEllipse[], color: Color): void {
+        if (ellipses.length >= 1) {
             this.stringParts.push(`\t\t<g stroke="none" fill="${color.toStringRGBA(this.ellipseOpacity)}">`);
-            for (const ellipse of ellipsis) {
+            for (const ellipse of ellipses) {
                 const transform = `translate(${ellipse.center.x.toFixed(1)} ${ellipse.center.y.toFixed(1)}) rotate(${radianToDegree(ellipse.orientation).toFixed(1)})`;
                 this.stringParts.push(`\t\t\t<ellipse cx="0" cy="0" rx="${(0.5 * ellipse.width).toFixed(1)}" ry="${(0.5 * ellipse.height).toFixed(1)}" transform="${transform}"/>`);
             }

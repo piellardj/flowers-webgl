@@ -25,7 +25,7 @@ abstract class Plotter {
 
     public abstract drawPolygon(polygon: Line, offset: IPoint): void;
 
-    public abstract drawEllipsis(ellipsis: IEllipse[], color: Color): void;
+    public abstract drawEllipses(ellipses: IEllipse[], color: Color): void;
 }
 
 export {
