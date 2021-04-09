@@ -96,7 +96,7 @@ class Parameters {
     }
 
     public static get petalColor(): Color {
-        return petalsColor
+        return petalsColor;
     }
 
     public static addDownloadObserver(observer: Observer): void {

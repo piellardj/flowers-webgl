@@ -24,7 +24,7 @@ class FlowersManager {
 
         // create new flowers if needed
         while (this.flowers.length < idealNumberOfFlowers) {
-            const newFlower = FlowersManager.createFlower(domainWidth, domainHeight)
+            const newFlower = FlowersManager.createFlower(domainWidth, domainHeight);
             this.flowers.push(newFlower);
         }
 

@@ -12,6 +12,10 @@
         ],
         "no-console": false,
         "object-literal-sort-keys": false,
+        "semicolon": [
+            true,
+            "always"
+        ],
         "variable-name": [
             true,
             "check-format",
