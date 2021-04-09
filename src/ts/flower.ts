@@ -6,7 +6,7 @@ import { Line, Plotter } from "./plotting/plotter";
 import { Rope } from "./rope";
 
 class Flower {
-    public static maxSegmentLength: number = 20;
+    public static readonly maxSegmentLength: number = 20;
 
     private readonly attachPoint: IPoint;
     private readonly stem: Rope;
@@ -40,10 +40,6 @@ class Flower {
 
     public isDead(lowestAllowed: number): boolean {
         return this.corolla.isDead(lowestAllowed) && this.stem.highestPoint >= lowestAllowed;
-    }
-
-    public resetPetalColors(): void {
-        this.corolla.resetPetalColors();
     }
 
     private attachCorolla(): void {

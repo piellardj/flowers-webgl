@@ -1,6 +1,7 @@
 import { IEllipse, IPoint } from "../interfaces";
 import { Line } from "./plotter";
 import { PlotterCanvas } from "./plotter-canvas-base";
+import { Color } from "./color";
 
 import "../page-interface-generated";
 
@@ -14,21 +15,22 @@ class PlotterCanvas2D extends PlotterCanvas {
     public constructor() {
         super();
         this.context = this.canvas.getContext("2d", { alpha: false });
+        this.context.lineWidth = 1; // do not adapt with cssPixel for performance reasons on mobile devices
     }
 
-    public initialize(backgroundColor: string): void {
-        this.context.fillStyle = backgroundColor;
+    protected initializeInternal(): void {
+        this.context.fillStyle = this.fillColor.toStringRGB();
         this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
     // tslint:disable-next-line no-empty
     public finalize(): void { }
 
-    public drawLines(lines: Line[], color: string): void {
+    public drawLines(lines: Line[]): void {
         if (lines.length >= 1) {
-            this.context.strokeStyle = color;
+            this.context.strokeStyle = this.lineColor.toStringRGB();
             this.context.lineWidth = 1; // do not adapt with cssPixel for performance reasons on mobile devices
-
+            
             this.context.beginPath();
 
             for (const line of lines) {
@@ -45,10 +47,9 @@ class PlotterCanvas2D extends PlotterCanvas {
         }
     }
 
-    public drawPolygon(polygon: Line, offset: IPoint, strokeColor: string, fillColor: string): void {
+    public drawPolygon(polygon: Line, offset: IPoint): void {
         if (polygon.length >= 2) {
-            this.context.strokeStyle = strokeColor;
-            this.context.fillStyle = fillColor;
+            this.context.fillStyle = this.fillColor.toStringRGB();
             this.context.lineWidth = 1; // do not adapt with cssPixel for performance reasons on mobile devices
 
             this.context.beginPath();
@@ -65,8 +66,8 @@ class PlotterCanvas2D extends PlotterCanvas {
         }
     }
 
-    public drawEllipsis(ellipsis: IEllipse[], color: string): void {
-        this.context.fillStyle = color;
+    public drawEllipsis(ellipsis: IEllipse[], color: Color): void {
+        this.context.fillStyle = color.toStringRGBA(this.ellipseOpacity);
 
         if (typeof this.context.ellipse !== "function") {
             this.context.ellipse = ellipsePolyfill;

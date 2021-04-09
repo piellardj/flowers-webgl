@@ -11,7 +11,7 @@ import "./page-interface-generated";
 import { PlotterCanvasWebGL } from "./plotting/plotter-canvas-webgl";
 
 function plot(flowersManager: FlowersManager, plotter: Plotter): void {
-    plotter.initialize(Parameters.backgroundColor);
+    plotter.initialize(Parameters.backgroundColor, Parameters.linesColor, 0.2);
     flowersManager.draw(plotter);
     plotter.finalize();
 }
@@ -22,7 +22,6 @@ function main() {
 
     Parameters.addResetObserver(() => { flowersManager.reset(); });
     Parameters.addDownloadObserver(() => { exportAsSvg(flowersManager, plotter.width, plotter.height); });
-    Parameters.addPetalColorChange(() => { flowersManager.resetPetalColors(); });
 
     const maxDt = 1 / 60;
     let lastUpdate = performance.now();

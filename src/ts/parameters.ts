@@ -1,6 +1,7 @@
 import { IPoint } from "./interfaces";
 
 import "./page-interface-generated";
+import { Color } from "./plotting/color";
 
 /* === IDs ============================================================ */
 const controlId = {
@@ -27,13 +28,20 @@ function callObservers(observers: Observer[]) {
 
 const resetObservers: Observer[] = [];
 const downloadObservers: Observer[] = [];
-const petalColorChangeObservers: Observer[] = [];
 
-interface IColorRGB {
-    r: number; // in [0, 255]
-    g: number; // in [0, 255]
-    b: number; // in [0, 255]
+function getColor(id: string): Color {
+    const rgb = Page.ColorPicker.getValue(id);
+    return new Color(rgb.r, rgb.g, rgb.b);
 }
+
+let backgroundColor: Color = getColor(controlId.BACKGROUND_COLORPICKER);
+Page.ColorPicker.addObserver(controlId.BACKGROUND_COLORPICKER, () => { backgroundColor = getColor(controlId.BACKGROUND_COLORPICKER); });
+
+let linesColor: Color = getColor(controlId.LINES_COLORPICKER);
+Page.ColorPicker.addObserver(controlId.LINES_COLORPICKER, () => { linesColor = getColor(controlId.LINES_COLORPICKER); });
+
+let petalsColor: Color = getColor(controlId.PETAL_COLORPICKER);
+Page.ColorPicker.addObserver(controlId.PETAL_COLORPICKER, () => { petalsColor = getColor(controlId.PETAL_COLORPICKER); });
 
 /* === INTERFACE ====================================================== */
 class Parameters {
@@ -75,24 +83,20 @@ class Parameters {
         resetObservers.push(observer);
     }
 
-    public static get backgroundColor(): string {
-        return Page.ColorPicker.getValueHex(controlId.BACKGROUND_COLORPICKER);
+    public static get backgroundColor(): Color {
+        return backgroundColor;
     }
 
-    public static get linesColor(): string {
-        return Page.ColorPicker.getValueHex(controlId.LINES_COLORPICKER);
+    public static get linesColor(): Color {
+        return linesColor;
     }
 
     public static get singlePetalColor(): boolean {
         return Page.Checkbox.isChecked(controlId.SINGLE_PETAL_COLOR_CHECKBOX);
     }
 
-    public static get petalColor(): IColorRGB {
-        return Page.ColorPicker.getValue(controlId.PETAL_COLORPICKER) as IColorRGB;
-    }
-
-    public static addPetalColorChange(observer: Observer): void {
-        petalColorChangeObservers.push(observer);
+    public static get petalColor(): Color {
+        return petalsColor
     }
 
     public static addDownloadObserver(observer: Observer): void {
@@ -117,16 +121,6 @@ Page.Button.addObserver(controlId.DOWNLOAD_BUTTON, () => {
     callObservers(downloadObservers);
 });
 
-Page.Checkbox.addObserver(controlId.SINGLE_PETAL_COLOR_CHECKBOX, () => {
-    callObservers(petalColorChangeObservers);
-});
-Page.ColorPicker.addObserver(controlId.PETAL_COLORPICKER, () => {
-    if (Parameters.singlePetalColor) {
-        callObservers(petalColorChangeObservers);
-    }
-});
-
 export {
-    IColorRGB,
     Parameters,
 };

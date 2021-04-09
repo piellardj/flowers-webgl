@@ -7,6 +7,7 @@ import { Shader } from "../gl-utils/shader";
 import * as ShaderManager from "../gl-utils/shader-manager";
 
 import "../page-interface-generated";
+import { Color } from "./color";
 
 
 interface IRGB {
@@ -17,25 +18,12 @@ interface IRGB {
 
 interface IEllipseBatch {
     ellipseList: IEllipse[];
-    color: IRGB;
-    // depth: number;
+    color: Color;
 }
 
 interface IPolygon {
     outline: IPoint[];
     center: IPoint;
-}
-
-function parseRGB(hexaColor: string): IRGB {
-    const redHex = hexaColor.substring(1, 3);
-    const greenHex = hexaColor.substring(3, 5);
-    const blueHex = hexaColor.substring(5, 7);
-
-    return {
-        r: parseInt(redHex, 16) / 255,
-        g: parseInt(greenHex, 16) / 255,
-        b: parseInt(blueHex, 16) / 255,
-    };
 }
 
 class PlotterCanvasWebGL extends PlotterCanvas {
@@ -108,11 +96,9 @@ class PlotterCanvasWebGL extends PlotterCanvas {
         });
     }
 
-    public initialize(backgroundColor: string): void {
-        const rgb = parseRGB(backgroundColor);
-
+    public initializeInternal(): void {
         gl.viewport(0, 0, this.width * this.cssPixel, this.height * this.cssPixel);
-        gl.clearColor(rgb.r, rgb.g, rgb.b, 1);
+        gl.clearColor(this.fillColor.rNormalized, this.fillColor.gNormalized, this.fillColor.bNormalized, 1);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
         this.ellipseBatches = [];
@@ -128,7 +114,7 @@ class PlotterCanvasWebGL extends PlotterCanvas {
         this.ellipseBatches = [];
     }
 
-    public drawLines(lines: Line[], color: string): void {
+    public drawLines(lines: Line[]): void {
         if (this.stemsShader && lines.length > 0) {
             let totalNbLines = 0;
             for (const line of lines) {
@@ -156,10 +142,8 @@ class PlotterCanvasWebGL extends PlotterCanvas {
                 }
             }
 
-            const rgb = parseRGB(color);
-
             this.stemsShader.u["uScreenSize"].value = [this.width, this.height];
-            this.stemsShader.u["uColor"].value = [rgb.r, rgb.g, rgb.b, 1];
+            this.stemsShader.u["uColor"].value = [this.lineColor.rNormalized, this.lineColor.gNormalized, this.lineColor.bNormalized, 1];
 
             this.stemsShader.use();
             this.stemsShader.bindUniforms();
@@ -173,7 +157,7 @@ class PlotterCanvasWebGL extends PlotterCanvas {
         }
     }
 
-    public drawPolygon(polygon: Line, offset: IPoint, strokeColor: string, fillColor: string): void {
+    public drawPolygon(polygon: Line, offset: IPoint): void {
         const line: IPoint[] = [];
         for (const point of polygon) {
             line.push({
@@ -188,18 +172,10 @@ class PlotterCanvasWebGL extends PlotterCanvas {
         })
     }
 
-    public drawEllipsis(ellipsis: IEllipse[], color: string): void {
-        const substring = color.substring(5, color.length - 1);
-        const channelsAsString = substring.split(", ");
-        const colorRgb: IRGB = {
-            r: +channelsAsString[0] / 255,
-            g: +channelsAsString[1] / 255,
-            b: +channelsAsString[2] / 255,
-        };
-
+    public drawEllipsis(ellipsis: IEllipse[], color: Color): void {
         this.ellipseBatches.push({
             ellipseList: ellipsis,
-            color: colorRgb,
+            color,
         });
     }
 
@@ -267,8 +243,6 @@ class PlotterCanvasWebGL extends PlotterCanvas {
             this.corollaShader.u["uScreenSize"].value = [this.width, this.height];
 
             this.corollaShader.use();
-            this.corollaShader.u["uColor"].value = [1, 0, 0, 1];
-            this.corollaShader.bindUniforms();
 
             gl.bindBuffer(gl.ARRAY_BUFFER, this.corollaVBOId);
             gl.bufferData(gl.ARRAY_BUFFER, verticesBuffer, gl.DYNAMIC_DRAW);
@@ -280,10 +254,12 @@ class PlotterCanvasWebGL extends PlotterCanvas {
             gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indicesBuffer, gl.DYNAMIC_DRAW);
 
             gl.depthMask(true);
+            this.corollaShader.u["uColor"].value = [this.fillColor.rNormalized, this.fillColor.gNormalized, this.fillColor.bNormalized, 1];
+            this.corollaShader.bindUniforms();
             gl.drawElements(gl.TRIANGLES, 3 * totalNbTriangles, gl.UNSIGNED_SHORT, 0);
             gl.depthMask(false);
 
-            this.corollaShader.u["uColor"].value = [0, 0, 0, 1];
+            this.corollaShader.u["uColor"].value = [this.lineColor.rNormalized, this.lineColor.gNormalized, this.lineColor.bNormalized, 2];
             this.corollaShader.bindUniforms();
             const UNSIGNED_SHORT_SIZE_IN_BYTES = 2;
             gl.drawElements(gl.LINES, 2 * totalNbLines, gl.UNSIGNED_SHORT, 3 * totalNbTriangles * UNSIGNED_SHORT_SIZE_IN_BYTES);
@@ -306,9 +282,9 @@ class PlotterCanvasWebGL extends PlotterCanvas {
                     buffer[i++] = Math.max(ellipse.width, ellipse.height);
                     buffer[i++] = Math.min(ellipse.width, ellipse.height) / Math.max(ellipse.width, ellipse.height);
 
-                    buffer[i++] = ellipseBatch.color.r;
-                    buffer[i++] = ellipseBatch.color.g;
-                    buffer[i++] = ellipseBatch.color.b;
+                    buffer[i++] = ellipseBatch.color.rNormalized;
+                    buffer[i++] = ellipseBatch.color.gNormalized;
+                    buffer[i++] = ellipseBatch.color.bNormalized;
                     buffer[i++] = ellipse.orientation;
                 }
             }

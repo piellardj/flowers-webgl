@@ -56,15 +56,9 @@ class FlowersManager {
             stems.push(flower.getDrawableStem());
         }
 
-        plotter.drawLines(stems, Parameters.linesColor);
+        plotter.drawLines(stems);
         for (const flower of this.flowers) {
             flower.drawCorolla(plotter);
-        }
-    }
-
-    public resetPetalColors(): void {
-        for (const flower of this.flowers) {
-            flower.resetPetalColors();
         }
     }
 
