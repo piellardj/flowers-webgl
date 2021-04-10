@@ -5,8 +5,7 @@ import { Parameters } from "./parameters";
 import { Color } from "./plotting/color";
 import { Plotter } from "./plotting/plotter";
 
-interface IFloatingPetal extends IEllipse {
-    center: IPoint;
+interface IPetal extends IEllipse {
     petalArea: number;
     rotationSpeed: number;
 }
@@ -36,8 +35,8 @@ class Corolla {
     public readonly position: IPoint; // readonly because attachedPetals reference it
 
     private readonly color: Color;
-    private readonly attachedPetals: IEllipse[];
-    private readonly floatingPetals: IFloatingPetal[];
+    private readonly attachedPetals: IPetal[];
+    private readonly floatingPetals: IPetal[];
     private readonly outline: IPoint[];
 
     private readonly noise: Noise;
@@ -55,8 +54,10 @@ class Corolla {
 
     public update(dt: number): void {
         if (this.attachedPetals.length > 0 && Math.random() < PETALS_DROP_RATE * dt) {
-            const newFreePetal = this.attachedPetals.pop();
-            this.registerFloatingPetal(newFreePetal);
+            const detachedPetal = this.attachedPetals.pop();
+            detachedPetal.center = { x: this.position.x, y: this.position.y };
+            detachedPetal.rotationSpeed = Noise.randomInRange(-1.5, 1.5);
+            this.floatingPetals.push(detachedPetal);
         }
 
         for (const detachedPetal of this.floatingPetals) {
@@ -115,16 +116,8 @@ class Corolla {
         }
     }
 
-    private registerFloatingPetal(petal: IEllipse): void {
-        const floatingPetal = petal as IFloatingPetal;
-        floatingPetal.center = { x: this.position.x, y: this.position.y };
-        floatingPetal.petalArea = floatingPetal.width * floatingPetal.height;
-        floatingPetal.rotationSpeed = Noise.randomInRange(-1.5, 1.5);
-        this.floatingPetals.push(floatingPetal);
-    }
-
-    private computePetals(nbPetals: number): IEllipse[] {
-        const result: IEllipse[] = [];
+    private computePetals(nbPetals: number): IPetal[] {
+        const result: IPetal[] = [];
 
         for (let i = 0; i < nbPetals; i++) {
             const width = Noise.randomInRange(50, 70);
@@ -137,6 +130,8 @@ class Corolla {
                 height,
                 orientation,
                 center: this.position,
+                petalArea: width * height,
+                rotationSpeed: 0,
             });
         }
 
