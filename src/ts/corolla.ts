@@ -82,7 +82,10 @@ class Corolla {
     }
 
     public getAcceleration(forceField: ForceField): IVector {
-        const strength = Math.pow(this.attachedPetals.length / this.initialPetalsCount, 0.25);
+        let strength = 0.75;
+        if (this.initialPetalsCount > 0) {
+            strength = Math.pow(this.attachedPetals.length / this.initialPetalsCount, 0.25);
+        }
 
         const acceleration: IVector = { x: 0, y: 0 };
         acceleration.x += this.wind.x * strength;
@@ -99,7 +102,10 @@ class Corolla {
     }
 
     public isDead(lowestAllowed: number): boolean {
-        return this.attachedPetals.length <= 0 && this.floatingPetals.length <= 0 && this.position.y > lowestAllowed + 50;
+        if (Parameters.petalsCount > 0) {
+            return this.attachedPetals.length <= 0 && this.floatingPetals.length <= 0 && this.position.y > lowestAllowed + 50;
+        }
+        return false;
     }
 
     private drawPetals(plotter: Plotter): void {
