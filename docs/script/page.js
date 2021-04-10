@@ -148,6 +148,18 @@ var Page;
             }
             URL.removeQueryParameter = removeQueryParameter;
         })(URL = Helpers.URL || (Helpers.URL = {}));
+        var Events;
+        (function (Events) {
+            function callAfterDOMLoaded(callback) {
+                if (document.readyState === "loading") { // Loading hasn't finished yet
+                    document.addEventListener("DOMContentLoaded", callback);
+                }
+                else { // `DOMContentLoaded` has already fired
+                    callback();
+                }
+            }
+            Events.callAfterDOMLoaded = callAfterDOMLoaded;
+        })(Events = Helpers.Events || (Helpers.Events = {}));
     })(Helpers = Page.Helpers || (Page.Helpers = {}));
 })(Page || (Page = {}));
 
@@ -237,127 +249,159 @@ var Page;
 var Page;
 (function (Page) {
     var Range;
-    (function (Range) {
-        function update(range) {
-            var container = range.parentElement;
-            var progressLeft = container.querySelector(".range-progress-left");
-            var progression = (+range.value - +range.min) / (+range.max - +range.min);
-            progression = Math.max(0, Math.min(1, progression));
-            progressLeft.style.width = (100 * progression) + "%";
-            var tooltip = container.querySelector("output.range-tooltip");
-            tooltip.textContent = range.value;
-        }
-        window.addEventListener("load", function () {
-            var updateFunctions = [];
-            var selector = ".range-container > input[type='range']";
-            var rangeElements = document.querySelectorAll(selector);
-            var _loop_1 = function (i) {
-                var rangeElement = rangeElements[i];
-                var updateFunction = function () {
-                    update(rangeElement);
-                };
-                updateFunctions.push(updateFunction);
-                rangeElement.addEventListener("input", updateFunction);
-                rangeElement.addEventListener("change", updateFunction);
-                updateFunction();
+    (function (Range_1) {
+        var Range = /** @class */ (function () {
+            function Range(container) {
+                var _this = this;
+                this.onInputObservers = [];
+                this.onChangeObservers = [];
+                this.inputElement = container.querySelector("input[type='range']");
+                this.progressLeftElement = container.querySelector(".range-progress-left");
+                this.tooltipElement = container.querySelector("output.range-tooltip");
+                this.id = this.inputElement.id;
+                this.inputElement.addEventListener("input", function (event) {
+                    event.stopPropagation();
+                    _this.reloadValue();
+                    for (var _i = 0, _a = _this.onInputObservers; _i < _a.length; _i++) {
+                        var observer = _a[_i];
+                        observer(_this.value);
+                    }
+                });
+                this.inputElement.addEventListener("change", function (event) {
+                    event.stopPropagation();
+                    _this.reloadValue();
+                    Storage.storeState(_this);
+                    for (var _i = 0, _a = _this.onChangeObservers; _i < _a.length; _i++) {
+                        var observer = _a[_i];
+                        observer(_this.value);
+                    }
+                });
+                this.reloadValue();
+            }
+            Object.defineProperty(Range.prototype, "value", {
+                get: function () {
+                    return this._value;
+                },
+                set: function (newValue) {
+                    this.inputElement.value = "" + newValue;
+                    this.reloadValue();
+                },
+                enumerable: false,
+                configurable: true
+            });
+            Range.prototype.updateAppearance = function () {
+                var currentLength = +this.inputElement.value - +this.inputElement.min;
+                var totalLength = +this.inputElement.max - +this.inputElement.min;
+                var progression = currentLength / totalLength;
+                progression = Math.max(0, Math.min(1, progression));
+                this.progressLeftElement.style.width = (100 * progression) + "%";
+                this.tooltipElement.textContent = this.inputElement.value;
             };
-            for (var i = 0; i < rangeElements.length; i++) {
-                _loop_1(i);
+            Range.prototype.reloadValue = function () {
+                this._value = +this.inputElement.value;
+                this.updateAppearance();
+            };
+            return Range;
+        }());
+        var Cache;
+        (function (Cache) {
+            function loadCache() {
+                var result = {};
+                var selector = ".range-container > input[type='range']";
+                var rangeElements = document.querySelectorAll(selector);
+                for (var i = 0; i < rangeElements.length; i++) {
+                    var container = rangeElements[i].parentElement;
+                    var id = rangeElements[i].id;
+                    result[id] = new Range(container);
+                }
+                return result;
             }
-        });
-        function getRangeById(id) {
-            var selector = "input[type=range][id=" + id + "]";
-            var elt = document.querySelector(selector);
-            if (!elt) {
-                console.error("Cannot find range '" + selector + "'.");
+            var rangesCache;
+            function getRangeById(id) {
+                Cache.load();
+                return rangesCache[id] || null;
             }
-            return elt;
-        }
+            Cache.getRangeById = getRangeById;
+            function load() {
+                if (typeof rangesCache === "undefined") {
+                    rangesCache = loadCache();
+                }
+            }
+            Cache.load = load;
+        })(Cache || (Cache = {}));
         var Storage;
         (function (Storage) {
             var PREFIX = "range";
-            function attachStorageEvents() {
-                var inputsSelector = ".range-container input.slider[type=range][id]";
-                var inputElements = document.querySelectorAll(inputsSelector);
-                var _loop_2 = function (i) {
-                    var inputElement = inputElements[i];
-                    inputElement.addEventListener("change", function () {
-                        Page.Helpers.URL.setQueryParameter(PREFIX, inputElement.id, inputElement.value);
-                    });
-                };
-                for (var i = 0; i < inputElements.length; i++) {
-                    _loop_2(i);
-                }
+            function storeState(range) {
+                var valueAsString = "" + range.value;
+                Page.Helpers.URL.setQueryParameter(PREFIX, range.id, valueAsString);
             }
-            Storage.attachStorageEvents = attachStorageEvents;
+            Storage.storeState = storeState;
             function applyStoredState() {
                 Page.Helpers.URL.loopOnParameters(PREFIX, function (controlId, value) {
-                    var input = getRangeById(controlId);
-                    if (!input) {
+                    var range = Cache.getRangeById(controlId);
+                    if (!range) {
                         console.log("Removing invalid query parameter '" + controlId + "=" + value + "'.");
                         Page.Helpers.URL.removeQueryParameter(PREFIX, controlId);
                     }
                     else {
-                        setValue(controlId, +value);
+                        range.value = +value;
                     }
                 });
             }
             Storage.applyStoredState = applyStoredState;
         })(Storage || (Storage = {}));
-        Storage.applyStoredState();
-        Storage.attachStorageEvents();
-        /**
-         * @return {boolean} Whether or not the observer was added
-         */
-        function addObserverInternal(rangeId, observer, eventName) {
-            var elt = getRangeById(rangeId);
-            if (elt) {
-                elt.addEventListener(eventName, function (event) {
-                    event.stopPropagation();
-                    observer(+elt.value);
-                }, false);
-                return true;
-            }
-            return false;
-        }
+        Page.Helpers.Events.callAfterDOMLoaded(function () {
+            Cache.load();
+            Storage.applyStoredState();
+        });
         var isIE11 = !!window.MSInputMethodContext && !!document["documentMode"];
         /**
          * Callback will be called every time the value changes.
          * @return {boolean} Whether or not the observer was added
          */
         function addObserver(rangeId, observer) {
-            if (isIE11) { // bug in IE 11, input event is never fired
-                return addObserverInternal(rangeId, observer, "change");
+            var range = Cache.getRangeById(rangeId);
+            if (range) {
+                if (isIE11) { // bug in IE 11, input event is never fired
+                    range.onChangeObservers.push(observer);
+                }
+                else {
+                    range.onInputObservers.push(observer);
+                }
+                return true;
             }
-            else {
-                return addObserverInternal(rangeId, observer, "input");
-            }
+            return false;
         }
-        Range.addObserver = addObserver;
+        Range_1.addObserver = addObserver;
         /**
          * Callback will be called only when the value stops changing.
          * @return {boolean} Whether or not the observer was added
          */
         function addLazyObserver(rangeId, observer) {
-            return addObserverInternal(rangeId, observer, "change");
+            var range = Cache.getRangeById(rangeId);
+            if (range) {
+                range.onChangeObservers.push(observer);
+                return true;
+            }
+            return false;
         }
-        Range.addLazyObserver = addLazyObserver;
+        Range_1.addLazyObserver = addLazyObserver;
         function getValue(rangeId) {
-            var elt = getRangeById(rangeId);
-            if (!elt) {
+            var range = Cache.getRangeById(rangeId);
+            if (!range) {
                 return null;
             }
-            return +elt.value;
+            return range.value;
         }
-        Range.getValue = getValue;
+        Range_1.getValue = getValue;
         function setValue(rangeId, value) {
-            var elt = getRangeById(rangeId);
-            if (elt) {
-                elt.value = "" + value;
-                update(elt);
+            var range = Cache.getRangeById(rangeId);
+            if (range) {
+                range.value = value;
             }
         }
-        Range.setValue = setValue;
+        Range_1.setValue = setValue;
     })(Range = Page.Range || (Page.Range = {}));
 })(Page || (Page = {}));
 
@@ -366,78 +410,119 @@ var Page;
 var Page;
 (function (Page) {
     var Checkbox;
-    (function (Checkbox) {
-        function getCheckboxFromId(id) {
-            var selector = "input[type=checkbox][id=" + id + "]";
-            var elt = document.querySelector(selector);
-            if (!elt) {
-                console.error("Cannot find checkbox '" + selector + "'.");
+    (function (Checkbox_1) {
+        var Checkbox = /** @class */ (function () {
+            function Checkbox(element) {
+                var _this = this;
+                this.observers = [];
+                this.id = element.id;
+                this.element = element;
+                this.reloadValue();
+                this.element.addEventListener("change", function () {
+                    _this.reloadValue();
+                    Storage.storeState(_this);
+                    for (var _i = 0, _a = _this.observers; _i < _a.length; _i++) {
+                        var observer = _a[_i];
+                        observer(_this.checked);
+                    }
+                });
             }
-            return elt;
-        }
+            Object.defineProperty(Checkbox.prototype, "checked", {
+                get: function () {
+                    return this._checked;
+                },
+                set: function (newChecked) {
+                    this.element.checked = newChecked;
+                    this.reloadValue();
+                },
+                enumerable: false,
+                configurable: true
+            });
+            Checkbox.prototype.reloadValue = function () {
+                this._checked = this.element.checked;
+            };
+            return Checkbox;
+        }());
+        var Cache;
+        (function (Cache) {
+            function loadCache() {
+                var result = {};
+                var selector = "div.checkbox > input[type=checkbox][id]";
+                var elements = document.querySelectorAll(selector);
+                for (var i = 0; i < elements.length; i++) {
+                    var checkbox = new Checkbox(elements[i]);
+                    result[checkbox.id] = checkbox;
+                }
+                return result;
+            }
+            var checkboxesCache;
+            function getCheckboxById(id) {
+                Cache.load();
+                return checkboxesCache[id] || null;
+            }
+            Cache.getCheckboxById = getCheckboxById;
+            function load() {
+                if (typeof checkboxesCache === "undefined") {
+                    checkboxesCache = loadCache();
+                }
+            }
+            Cache.load = load;
+        })(Cache || (Cache = {}));
         var Storage;
         (function (Storage) {
             var PREFIX = "checkbox";
             var CHECKED = "true";
             var UNCHECKED = "false";
-            function attachStorageEvents() {
-                var checkboxesSelector = "div.checkbox > input[type=checkbox][id]";
-                var checkboxes = document.querySelectorAll(checkboxesSelector);
-                var _loop_1 = function (i) {
-                    var checkbox = checkboxes[i];
-                    checkbox.addEventListener("change", function () {
-                        var value = checkbox.checked ? CHECKED : UNCHECKED;
-                        Page.Helpers.URL.setQueryParameter(PREFIX, checkbox.id, value);
-                    });
-                };
-                for (var i = 0; i < checkboxes.length; i++) {
-                    _loop_1(i);
-                }
+            function storeState(checkbox) {
+                var stateAsString = checkbox.checked ? CHECKED : UNCHECKED;
+                Page.Helpers.URL.setQueryParameter(PREFIX, checkbox.id, stateAsString);
             }
-            Storage.attachStorageEvents = attachStorageEvents;
+            Storage.storeState = storeState;
             function applyStoredState() {
                 Page.Helpers.URL.loopOnParameters(PREFIX, function (checkboxId, value) {
-                    var input = getCheckboxFromId(checkboxId);
-                    if (!input || (value !== CHECKED && value !== UNCHECKED)) {
+                    var checkbox = Cache.getCheckboxById(checkboxId);
+                    if (!checkbox || (value !== CHECKED && value !== UNCHECKED)) {
                         console.log("Removing invalid query parameter '" + checkboxId + "=" + value + "'.");
                         Page.Helpers.URL.removeQueryParameter(PREFIX, checkboxId);
                     }
                     else {
-                        input.checked = (value === CHECKED);
+                        checkbox.checked = (value === CHECKED);
                     }
                 });
             }
             Storage.applyStoredState = applyStoredState;
         })(Storage || (Storage = {}));
-        Storage.applyStoredState();
-        Storage.attachStorageEvents();
+        Page.Helpers.Events.callAfterDOMLoaded(function () {
+            Cache.load();
+            Storage.applyStoredState();
+        });
         /**
          * @return {boolean} Whether or not the observer was added
          */
         function addObserver(checkboxId, observer) {
-            var elt = getCheckboxFromId(checkboxId);
-            if (elt) {
-                elt.addEventListener("change", function (event) {
-                    event.stopPropagation();
-                    observer(elt.checked);
-                }, false);
+            var checkbox = Cache.getCheckboxById(checkboxId);
+            if (checkbox) {
+                checkbox.observers.push(observer);
                 return true;
             }
             return false;
         }
-        Checkbox.addObserver = addObserver;
+        Checkbox_1.addObserver = addObserver;
         function setChecked(checkboxId, value) {
-            var elt = getCheckboxFromId(checkboxId);
-            if (elt) {
-                elt.checked = value ? true : false;
+            var checkbox = Cache.getCheckboxById(checkboxId);
+            if (checkbox) {
+                checkbox.checked = value;
             }
         }
-        Checkbox.setChecked = setChecked;
+        Checkbox_1.setChecked = setChecked;
         function isChecked(checkboxId) {
-            var elt = getCheckboxFromId(checkboxId);
-            return !!elt && elt.checked;
+            var checkbox = Cache.getCheckboxById(checkboxId);
+            if (checkbox) {
+                return checkbox.checked;
+            }
+            return false;
         }
-        Checkbox.isChecked = isChecked;
+        Checkbox_1.isChecked = isChecked;
     })(Checkbox = Page.Checkbox || (Page.Checkbox = {}));
 })(Page || (Page = {}));
 
@@ -445,37 +530,69 @@ var Page;
 var Page;
 (function (Page) {
     var Button;
-    (function (Button) {
-        function getButtonById(id) {
-            var selector = "button[id=" + id + "]";
-            var elt = document.querySelector(selector);
-            if (!elt) {
-                console.error("Cannot find button '" + id + "'.");
+    (function (Button_1) {
+        var Button = /** @class */ (function () {
+            function Button(element) {
+                var _this = this;
+                this.observers = [];
+                this.id = element.id;
+                this.element = element;
+                this.element.addEventListener("click", function (event) {
+                    event.stopPropagation();
+                    for (var _i = 0, _a = _this.observers; _i < _a.length; _i++) {
+                        var observer = _a[_i];
+                        observer();
+                    }
+                }, false);
             }
-            return elt;
-        }
+            Object.defineProperty(Button.prototype, "label", {
+                set: function (newLabel) {
+                    this.element.innerText = newLabel;
+                },
+                enumerable: false,
+                configurable: true
+            });
+            return Button;
+        }());
+        var Cache;
+        (function (Cache) {
+            function loadCache() {
+                var result = {};
+                var elements = document.querySelectorAll("button[id]");
+                for (var i = 0; i < elements.length; i++) {
+                    var button = new Button(elements[i]);
+                    result[button.id] = button;
+                }
+                return result;
+            }
+            var buttonsCache;
+            function getButtonById(id) {
+                if (typeof buttonsCache === "undefined") {
+                    buttonsCache = loadCache();
+                }
+                return buttonsCache[id] || null;
+            }
+            Cache.getButtonById = getButtonById;
+        })(Cache || (Cache = {}));
         /**
          * @return {boolean} Whether or not the observer was added
          */
         function addObserver(buttonId, observer) {
-            var elt = getButtonById(buttonId);
-            if (elt) {
-                elt.addEventListener("click", function (event) {
-                    event.stopPropagation();
-                    observer();
-                }, false);
+            var button = Cache.getButtonById(buttonId);
+            if (button) {
+                button.observers.push(observer);
                 return true;
             }
             return false;
         }
-        Button.addObserver = addObserver;
+        Button_1.addObserver = addObserver;
         function setLabel(buttonId, label) {
-            var elt = getButtonById(buttonId);
-            if (elt) {
-                elt.innerText = label;
+            var button = Cache.getButtonById(buttonId);
+            if (button) {
+                button.label = label;
             }
         }
-        Button.setLabel = setLabel;
+        Button_1.setLabel = setLabel;
     })(Button = Page.Button || (Page.Button = {}));
 })(Page || (Page = {}));
 
@@ -590,15 +707,6 @@ var Page;
                     Popup.assignPopup(_this);
                 });
             }
-            ColorPicker.getColorPicker = function (id) {
-                if (!ColorPicker.colorPickersMap[id]) {
-                    var element = document.querySelector("#" + id + ".color-picker");
-                    if (element) {
-                        ColorPicker.colorPickersMap[id] = new ColorPicker(element);
-                    }
-                }
-                return ColorPicker.colorPickersMap[id];
-            };
             Object.defineProperty(ColorPicker.prototype, "value", {
                 get: function () {
                     return this.element.dataset.currentColor;
@@ -626,9 +734,32 @@ var Page;
                 this.colorPreview.style.background = hexValue;
                 this.colorPreviewText.textContent = hexValue;
             };
-            ColorPicker.colorPickersMap = {};
             return ColorPicker;
         }());
+        var Cache;
+        (function (Cache) {
+            function loadCache() {
+                var result = {};
+                var containers = document.querySelectorAll(".color-picker[id]");
+                for (var i = 0; i < containers.length; i++) {
+                    var coloPicker = new ColorPicker(containers[i]);
+                    result[containers[i].id] = coloPicker;
+                }
+                return result;
+            }
+            var colorPickersCache;
+            function getColorPickerById(id) {
+                Cache.load();
+                return colorPickersCache[id] || null;
+            }
+            Cache.getColorPickerById = getColorPickerById;
+            function load() {
+                if (typeof colorPickersCache === "undefined") {
+                    colorPickersCache = loadCache();
+                }
+            }
+            Cache.load = load;
+        })(Cache || (Cache = {}));
         var Storage;
         (function (Storage) {
             var PREFIX = "color-picker";
@@ -638,12 +769,14 @@ var Page;
             Storage.storeState = storeState;
             function applyStoredState() {
                 Page.Helpers.URL.loopOnParameters(PREFIX, function (controlId, value) {
+                    var colorPicker = Cache.getColorPickerById(controlId);
                     var hexValue = ColorSpace.parseHexa(value);
-                    if (hexValue) {
-                        var colorPicker = ColorPicker.getColorPicker(controlId);
-                        if (colorPicker) {
-                            colorPicker.value = hexValue;
-                        }
+                    if (!colorPicker || !hexValue) {
+                        console.log("Removing invalid query parameter '" + controlId + "=" + value + "'.");
+                        Page.Helpers.URL.removeQueryParameter(PREFIX, controlId);
+                    }
+                    else {
+                        colorPicker.value = hexValue;
                     }
                 });
             }
@@ -824,7 +957,6 @@ var Page;
                         var cursorBox = cursor.getBoundingClientRect();
                         handleOffset.x = 0.5 * cursorBox.width - (event.clientX - cursorBox.left);
                         handleOffset.y = 0.5 * cursorBox.height - (event.clientY - cursorBox.top);
-                        console.log(JSON.stringify(handleOffset));
                     }
                     else {
                         var coords = absoluteToRelative(event.clientX, event.clientY);
@@ -918,17 +1050,12 @@ var Page;
             };
             return Popup;
         }());
-        window.addEventListener("load", function buildColorPickersMap() {
-            var list = document.querySelectorAll(".color-picker");
-            for (var i = 0; i < list.length; i++) {
-                var colorPickerElement = list[i];
-                var id = colorPickerElement.id;
-                ColorPicker.getColorPicker(id); // register the color picker
-            }
+        Page.Helpers.Events.callAfterDOMLoaded(function () {
+            Cache.load();
             Storage.applyStoredState();
         });
         function addObserver(id, observer) {
-            var colorPicker = ColorPicker.getColorPicker(id);
+            var colorPicker = Cache.getColorPickerById(id);
             if (colorPicker) {
                 colorPicker.observers.push(observer);
             }
@@ -936,13 +1063,13 @@ var Page;
         }
         ColorPicker_1.addObserver = addObserver;
         function getValue(id) {
-            var colorPicker = ColorPicker.getColorPicker(id);
+            var colorPicker = Cache.getColorPickerById(id);
             var hexValue = colorPicker.value;
             return ColorSpace.hexToRgb(hexValue);
         }
         ColorPicker_1.getValue = getValue;
         function getValueHex(id) {
-            var colorPicker = ColorPicker.getColorPicker(id);
+            var colorPicker = Cache.getColorPickerById(id);
             return colorPicker.value;
         }
         ColorPicker_1.getValueHex = getValueHex;
@@ -959,7 +1086,7 @@ var Page;
                 b: roundAndClamp(b, 0, 255),
             };
             var hexValue = ColorSpace.rgbToHex(rgb);
-            var colorPicker = ColorPicker.getColorPicker(id);
+            var colorPicker = Cache.getColorPickerById(id);
             colorPicker.value = hexValue;
         }
         ColorPicker_1.setValue = setValue;
@@ -998,12 +1125,12 @@ var Page;
                 document.body.style.overflow = value ? "hidden" : "auto";
             }
             if (fullscreenCheckbox) {
-                window.addEventListener("load", function () {
+                Page.Helpers.Events.callAfterDOMLoaded(function () {
                     hideOverflow(fullscreenCheckbox.checked);
                     fullscreenCheckbox.addEventListener("change", function () {
                         hideOverflow(fullscreenCheckbox.checked);
                     });
-                }, false);
+                });
                 if (sidePaneCheckbox) {
                     fullscreenCheckbox.addEventListener("change", function () {
                         if (fullscreenCheckbox.checked) {
@@ -1049,7 +1176,7 @@ var Page;
                 }
             }
         }
-        window.addEventListener("load", updateCanvasSize, false);
+        Page.Helpers.Events.callAfterDOMLoaded(updateCanvasSize);
         fullscreenCheckbox.addEventListener("change", updateCanvasSize, false);
         window.addEventListener("resize", updateCanvasSize, false);
         var fullscreenToggleObservers = [updateCanvasSize];
