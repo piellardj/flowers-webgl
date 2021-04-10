@@ -353,7 +353,7 @@ class PlotterCanvasWebGL extends PlotterCanvas {
             }
 
             this.ellipsesShader.u["uScreenSize"].value = [this.width, this.height];
-            this.ellipsesShader.u["uPetalAlpha"].value = 0.2;
+            this.ellipsesShader.u["uPetalAlpha"].value = this.ellipseOpacity;
 
             this.ellipsesShader.use();
             this.ellipsesShader.bindUniforms();

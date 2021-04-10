@@ -11,7 +11,7 @@ import "./page-interface-generated";
 import { PlotterCanvasWebGL } from "./plotting/plotter-canvas-webgl";
 
 function plot(flowersManager: FlowersManager, plotter: Plotter): void {
-    plotter.initialize(Parameters.backgroundColor, Parameters.linesColor, 0.2);
+    plotter.initialize(Parameters.backgroundColor, Parameters.linesColor, Parameters.petalsOpacity);
     flowersManager.draw(plotter);
     plotter.finalize();
 }

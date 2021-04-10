@@ -76,7 +76,7 @@ const data = {
             ]
         },
         {
-            title: "Output",
+            title: "Appearance",
             controls: [
                 {
                     type: Demopage.supportedControls.ColorPicker,
@@ -91,6 +91,15 @@ const data = {
                     defaultValueHex: "#000000"
                 },
                 {
+                    type: Demopage.supportedControls.Range,
+                    title: "Petals opacity",
+                    id: "petals-opacity-range-id",
+                    min: 0.05,
+                    max: 1,
+                    value: 0.2,
+                    step: 0.05
+                },
+                {
                     type: Demopage.supportedControls.Checkbox,
                     title: "Single color",
                     id: "single-petal-color-checkbox-id",
@@ -101,7 +110,12 @@ const data = {
                     title: "Petal color",
                     id: "petal-color-id",
                     defaultValueHex: "#FF0000"
-                },
+                }
+            ]
+        },
+        {
+            title: "Output",
+            controls: [
                 {
                     type: Demopage.supportedControls.Button,
                     id: "download-button-id",

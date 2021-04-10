@@ -13,6 +13,7 @@ const controlId = {
     RESET_BUTTON: "reset-button-id",
     BACKGROUND_COLORPICKER: "background-color-id",
     LINES_COLORPICKER: "lines-color-id",
+    PETALS_OPACITY: "petals-opacity-range-id",
     SINGLE_PETAL_COLOR_CHECKBOX: "single-petal-color-checkbox-id",
     PETAL_COLORPICKER: "petal-color-id",
     DOWNLOAD_BUTTON: "download-button-id",
@@ -89,6 +90,10 @@ class Parameters {
 
     public static get linesColor(): Color {
         return linesColor;
+    }
+
+    public static get petalsOpacity(): number {
+        return Page.Range.getValue(controlId.PETALS_OPACITY);
     }
 
     public static get singlePetalColor(): boolean {
