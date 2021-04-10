@@ -24,17 +24,22 @@ const data = {
     },
     controlsSections: [
         {
-            title: "Simulation",
+            title: "Flowers",
             controls: [
                 {
                     type: Demopage.supportedControls.Range,
-                    title: "Flowers",
+                    title: "Density",
                     id: "flowers-range-id",
                     min: 0,
                     max: 1,
                     value: 0.3,
                     step: 0.05
                 },
+            ]
+        },
+        {
+            title: "Simulation",
+            controls: [
                 {
                     type: Demopage.supportedControls.Range,
                     title: "Wind",
