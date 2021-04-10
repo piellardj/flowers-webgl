@@ -12,7 +12,7 @@
     "webpack": "webpack --config src/config/webpack.config.js"
   },
   "author": "“Jérémie PIELLARD <jeremie.piellard@gmail.com> (https://github.com/piellardj)",
-  "repository": "github:piellardj/flowers",
+  "repository": "github:piellardj/flowers-webgl",
   "devDependencies": {
     "@types/node": "^14.14.37",
     "fs-extra": "^9.1.0",
