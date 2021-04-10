@@ -103,6 +103,11 @@ class Parameters {
         downloadObservers.push(observer);
     }
 
+    public static get useCanvas2D(): boolean {
+        const lowercaseUrl = window.location.href.toLowerCase();
+        return lowercaseUrl.indexOf("plotter=canvas2d") >= 0;
+    }
+
     private constructor() { }
 }
 

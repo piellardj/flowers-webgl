@@ -17,7 +17,7 @@ function plot(flowersManager: FlowersManager, plotter: Plotter): void {
 }
 
 function main() {
-    const plotter: PlotterCanvas = new PlotterCanvasWebGL() || new PlotterCanvas2D();
+    const plotter: PlotterCanvas = Parameters.useCanvas2D ? new PlotterCanvas2D() : new PlotterCanvasWebGL();
     const flowersManager = new FlowersManager();
 
     Parameters.addResetObserver(() => { flowersManager.reset(); });
