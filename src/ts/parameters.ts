@@ -7,6 +7,7 @@ import "./page-interface-generated";
 /* === IDs ============================================================ */
 const controlId = {
     FLOWERS_RANGE: "flowers-range-id",
+    PETALS_COUNT_RANGE: "petals-count-range-id",
     WIND_RANGE: "wind-range-id",
     SPEED_RANGE: "speed-range-id",
     DAMPENING_RANGE: "dampening-range-id",
@@ -63,6 +64,10 @@ class Parameters {
 
     public static get flowersDensity(): number {
         return Page.Range.getValue(controlId.FLOWERS_RANGE) * 0.25;
+    }
+
+    public static get petalsCount(): number {
+        return Page.Range.getValue(controlId.PETALS_COUNT_RANGE);
     }
 
     public static get wind(): number {
@@ -125,6 +130,10 @@ Page.Checkbox.addObserver(controlId.SINGLE_PETAL_COLOR_CHECKBOX, updatePetalColo
 updatePetalColorsVisibility();
 
 Page.Button.addObserver(controlId.RESET_BUTTON, () => {
+    callObservers(resetObservers);
+});
+
+Page.Range.addLazyObserver(controlId.PETALS_COUNT_RANGE, () => {
     callObservers(resetObservers);
 });
 

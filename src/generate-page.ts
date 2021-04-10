@@ -35,6 +35,15 @@ const data = {
                     value: 0.3,
                     step: 0.05
                 },
+                {
+                    type: Demopage.supportedControls.Range,
+                    title: "Petals count",
+                    id: "petals-count-range-id",
+                    min: 0,
+                    max: 50,
+                    value: 10,
+                    step: 1
+                },
             ]
         },
         {

@@ -46,7 +46,7 @@ class Corolla {
     public constructor() {
         this.position = { x: 0, y: 0 };
         this.color = randomColor();
-        this.attachedPetals = this.computePetals(10);
+        this.attachedPetals = this.computePetals(Parameters.petalsCount);
         this.floatingPetals = [];
         this.outline = Corolla.computeOutline(40, 20);
 
