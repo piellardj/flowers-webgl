@@ -36,21 +36,27 @@ class Corolla {
     public readonly position: IPoint; // readonly because attachedPetals reference it
 
     private readonly color: Color;
+    private readonly initialPetalsCount: number;
     private readonly attachedPetals: IPetal[];
     private readonly floatingPetals: IPetal[];
     private readonly outline: IPoint[];
 
     private readonly noise: Noise;
+
+    private readonly maxLiftingForce: number;
+
     private wind: IVector;
 
     public constructor() {
         this.position = { x: 0, y: 0 };
         this.color = randomColor();
-        this.attachedPetals = this.computePetals(Parameters.petalsCount);
+        this.initialPetalsCount = Parameters.petalsCount;
+        this.attachedPetals = this.computePetals(this.initialPetalsCount);
         this.floatingPetals = [];
         this.outline = Corolla.computeOutline(40, 20);
 
         this.noise = new Noise(Noise.randomInRange(1, 2));
+        this.maxLiftingForce = Noise.randomInRange(5000, 8000);
     }
 
     public update(dt: number): void {
@@ -78,17 +84,18 @@ class Corolla {
     }
 
     public getAcceleration(forceField: ForceField): IVector {
+        const strength = Math.pow(this.attachedPetals.length / this.initialPetalsCount, 0.25);
+
         const acceleration: IVector = { x: 0, y: 0 };
-        acceleration.x += this.wind.x * Math.min(1, this.attachedPetals.length / 16);
+        acceleration.x += this.wind.x * strength;
         acceleration.y += this.wind.y;
 
-        const DOWNWARD_FORCE = 10000;
-        const UPWARD_FORCE = [7000, 10000, 11000, 12000];
-        acceleration.y += DOWNWARD_FORCE - UPWARD_FORCE[Math.min(UPWARD_FORCE.length - 1, this.attachedPetals.length)];
+        const GRAVITY = 3000;
+        acceleration.y += GRAVITY - this.maxLiftingForce * strength;
 
         const fieldForce = forceField.computeForce(this.position);
-        acceleration.x += 2000 * fieldForce.x;
-        acceleration.y += 2000 * fieldForce.y;
+        acceleration.x += strength * 2000 * fieldForce.x;
+        acceleration.y += strength * 2000 * fieldForce.y;
 
         return acceleration;
     }
