@@ -7,7 +7,7 @@ const data = {
     title: "Flowers",
     description: "Simple project painting flowers in a naive style using rope physics and Verlet integration",
     introduction: [
-        "This is a naive project painting a flower field. Over time, each flower loses its petals to the wind and eventually dies, only to be replaced by a new one.",
+        "This project paints a flower field in a naive style. Over time, each flower loses its petals to the wind and eventually dies, only to be replaced by a new one.",
         "The stems are modelized as weightless ropes and animated with Verlet integration."
     ],
     githubProjectName: "flowers-webgl",
@@ -41,7 +41,7 @@ const data = {
                     id: "petals-droprate-range-id",
                     min: 0,
                     max: 1,
-                    value: 0.5,
+                    value: 0.2,
                     step: 0.05
                 },
                 {
