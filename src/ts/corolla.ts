@@ -30,8 +30,6 @@ function randomColor(): Color {
     }
 }
 
-const PETALS_DROP_RATE = 0.1;
-
 class Corolla {
     public readonly position: IPoint; // readonly because attachedPetals reference it
 
@@ -60,7 +58,7 @@ class Corolla {
     }
 
     public update(dt: number): void {
-        if (this.attachedPetals.length > 0 && Math.random() < PETALS_DROP_RATE * dt) {
+        if (this.attachedPetals.length > 0 && Math.random() < this.petalsDropRate * dt) {
             const detachedPetal = this.attachedPetals.pop();
             detachedPetal.center = { x: this.position.x, y: this.position.y };
             detachedPetal.rotationSpeed = Noise.randomInRange(-1.5, 1.5);
@@ -144,6 +142,10 @@ class Corolla {
         }
 
         return result;
+    }
+
+    private get petalsDropRate(): number {
+        return 0.5 * Parameters.petalsDroprate * 0.1 * this.initialPetalsCount;
     }
 
     private static computeOutline(outlineNbPoints: number, outlineRadius: number): IPoint[] {

@@ -8,6 +8,7 @@ import "./page-interface-generated";
 const controlId = {
     FLOWERS_RANGE: "flowers-range-id",
     PETALS_COUNT_RANGE: "petals-count-range-id",
+    PETALS_DROPRATE_CHANGE: "petals-droprate-range-id",
     WIND_RANGE: "wind-range-id",
     SPEED_RANGE: "speed-range-id",
     DAMPENING_RANGE: "dampening-range-id",
@@ -68,6 +69,10 @@ class Parameters {
 
     public static get petalsCount(): number {
         return Page.Range.getValue(controlId.PETALS_COUNT_RANGE);
+    }
+
+    public static get petalsDroprate(): number {
+        return Page.Range.getValue(controlId.PETALS_DROPRATE_CHANGE);
     }
 
     public static get wind(): number {

@@ -37,6 +37,15 @@ const data = {
                 },
                 {
                     type: Demopage.supportedControls.Range,
+                    title: "Flying petals",
+                    id: "petals-droprate-range-id",
+                    min: 0,
+                    max: 1,
+                    value: 0.5,
+                    step: 0.05
+                },
+                {
+                    type: Demopage.supportedControls.Range,
                     title: "Petals count",
                     id: "petals-count-range-id",
                     min: 0,
