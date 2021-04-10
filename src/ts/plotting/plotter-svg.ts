@@ -1,8 +1,9 @@
-import { Line, Plotter } from "./plotter";
 import { IEllipse, IPoint } from "../interfaces";
 import { Color } from "./color";
+import { Line, Plotter } from "./plotter";
 
 import "../page-interface-generated";
+
 
 function radianToDegree(radian: number) {
     return 180 * radian / Math.PI;

@@ -5,6 +5,7 @@ import { Parameters } from "./parameters";
 import { Line, Plotter } from "./plotting/plotter";
 import { Rope } from "./rope";
 
+
 class Flower {
     public static readonly maxSegmentLength: number = 20;
 
@@ -49,3 +50,4 @@ class Flower {
 }
 
 export { Flower };
+

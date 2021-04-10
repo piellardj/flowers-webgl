@@ -3,6 +3,7 @@ import { Color } from "./color";
 
 import "../page-interface-generated";
 
+
 type Line = IPoint[];
 
 abstract class Plotter {
@@ -32,3 +33,4 @@ export {
     Line,
     Plotter,
 };
+

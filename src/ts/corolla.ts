@@ -5,6 +5,7 @@ import { Parameters } from "./parameters";
 import { Color } from "./plotting/color";
 import { Plotter } from "./plotting/plotter";
 
+
 interface IPetal extends IEllipse {
     petalArea: number;
     rotationSpeed: number;

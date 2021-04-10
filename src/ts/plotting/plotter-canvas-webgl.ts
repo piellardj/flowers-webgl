@@ -1,13 +1,13 @@
-import { IEllipse, IPoint } from "../interfaces";
-import { Line } from "./plotter";
-import { PlotterCanvas } from "./plotter-canvas-base";
-
 import { gl, initGL } from "../gl-utils/gl-canvas";
 import { Shader } from "../gl-utils/shader";
 import * as ShaderManager from "../gl-utils/shader-manager";
 
-import "../page-interface-generated";
+import { IEllipse, IPoint } from "../interfaces";
 import { Color } from "./color";
+import { Line } from "./plotter";
+import { PlotterCanvas } from "./plotter-canvas-base";
+
+import "../page-interface-generated";
 
 
 enum EBatchType {
@@ -381,3 +381,4 @@ class PlotterCanvasWebGL extends PlotterCanvas {
 export {
     PlotterCanvasWebGL,
 };
+

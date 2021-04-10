@@ -1,5 +1,4 @@
-import { IEllipse, IPoint } from "../interfaces";
-import { Line, Plotter } from "./plotter";
+import { Plotter } from "./plotter";
 
 import "../page-interface-generated";
 
@@ -44,3 +43,4 @@ abstract class PlotterCanvas extends Plotter {
 export {
     PlotterCanvas,
 };
+

@@ -1,7 +1,8 @@
 import { IPoint } from "./interfaces";
+import { Color } from "./plotting/color";
 
 import "./page-interface-generated";
-import { Color } from "./plotting/color";
+
 
 /* === IDs ============================================================ */
 const controlId = {
@@ -134,3 +135,4 @@ Page.Button.addObserver(controlId.DOWNLOAD_BUTTON, () => {
 export {
     Parameters,
 };
+

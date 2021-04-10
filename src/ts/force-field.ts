@@ -1,6 +1,7 @@
 import { IPoint, IVector } from "./interfaces";
 import { Parameters } from "./parameters";
 
+
 class ForceField {
     private readonly fleeMouseEnabled: boolean;
 
@@ -30,3 +31,4 @@ class ForceField {
 }
 
 export { ForceField };
+

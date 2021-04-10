@@ -5,6 +5,7 @@ import { Noise } from "./noise";
 import { Parameters } from "./parameters";
 import { Line, Plotter } from "./plotting/plotter";
 
+
 class FlowersManager {
     private readonly flowers: Flower[];
 
@@ -74,3 +75,4 @@ class FlowersManager {
 }
 
 export { FlowersManager };
+

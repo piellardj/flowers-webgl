@@ -1,9 +1,10 @@
 import { IEllipse, IPoint } from "../interfaces";
+import { Color } from "./color";
 import { Line } from "./plotter";
 import { PlotterCanvas } from "./plotter-canvas-base";
-import { Color } from "./color";
 
 import "../page-interface-generated";
+
 
 function ellipsePolyfill(this: CanvasRenderingContext2D, centerX: number, centerY: number, radiusX: number, radiusY: number) {
     this.arc(centerX, centerY, Math.max(radiusX, radiusY), 0, 2 * Math.PI);
@@ -85,3 +86,4 @@ class PlotterCanvas2D extends PlotterCanvas {
 export {
     PlotterCanvas2D,
 };
+

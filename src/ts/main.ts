@@ -2,13 +2,15 @@ import { FlowersManager } from "./flowers-manager";
 import { ForceField } from "./force-field";
 import { downloadTextFile } from "./helpers";
 import { Parameters } from "./parameters";
+
 import { Plotter } from "./plotting/plotter";
 import { PlotterCanvas2D } from "./plotting/plotter-canvas-2d";
 import { PlotterCanvas } from "./plotting/plotter-canvas-base";
+import { PlotterCanvasWebGL } from "./plotting/plotter-canvas-webgl";
 import { PlotterSvg } from "./plotting/plotter-svg";
 
 import "./page-interface-generated";
-import { PlotterCanvasWebGL } from "./plotting/plotter-canvas-webgl";
+
 
 function plot(flowersManager: FlowersManager, plotter: Plotter): void {
     plotter.initialize(Parameters.backgroundColor, Parameters.linesColor, Parameters.petalsOpacity);

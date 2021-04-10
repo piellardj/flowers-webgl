@@ -1,5 +1,5 @@
 import { IPoint, IVector } from "./interfaces";
-import { Line, Plotter } from "./plotting/plotter";
+import { Line } from "./plotting/plotter";
 
 interface IRopeNode {
     pos: IPoint;
@@ -146,3 +146,4 @@ class Rope {
 }
 
 export { Rope };
+
