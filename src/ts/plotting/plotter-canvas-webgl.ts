@@ -53,6 +53,7 @@ function loadShader(name: string, callback: (loadedShader: Shader) => unknown): 
     });
 }
 
+/* tslint:disable no-string-literal */
 class PlotterCanvasWebGL extends PlotterCanvas {
     private linesShader: Shader;
     private readonly linesVBOId: WebGLBuffer;
