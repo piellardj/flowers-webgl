@@ -89,7 +89,7 @@ const data = {
                     type: Demopage.supportedControls.Checkbox,
                     title: "Avoid mouse",
                     id: "flee-mouse-checkbox-id",
-                    checked: false
+                    checked: true
                 },
                 {
                     type: Demopage.supportedControls.Button,
