@@ -1,6 +1,6 @@
 {
-  "name": "flowers",
-  "homepage": "https://piellardj.github.io/flowers",
+  "name": "flowers-webgl",
+  "homepage": "https://piellardj.github.io/flowers-webgl",
   "description": "Performant 2D strange attractors plotter",
   "scripts": {
     "pre-commit": "npm run rebuild && npm run lint",

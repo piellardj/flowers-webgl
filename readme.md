@@ -7,7 +7,7 @@ The stems are modelized as weightless ropes and animated with Verlet integration
 
 
 
-See it live [here](https://piellardj.github.io/flowers/?page%3Acanvas%3Afullscreen=true).
+See it live [here](https://piellardj.github.io/flowers-webgl/?page%3Acanvas%3Afullscreen=true).
 
 ![Screenshot](src/readme/screenshot-1.png)
 

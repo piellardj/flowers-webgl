@@ -10,7 +10,7 @@ const data = {
         "This is a naive project painting a flower field. Over time, each flower loses its petals to the wind and eventually dies, only to be replaced by a new one.",
         "The stems are modelized as weightless ropes and animated with Verlet integration."
     ],
-    githubProjectName: "flowers",
+    githubProjectName: "flowers-webgl",
     additionalLinks: [],
     scriptFiles: [
         "script/main.min.js"
