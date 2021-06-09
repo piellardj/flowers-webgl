@@ -142,7 +142,7 @@ Page.Range.addLazyObserver(controlId.PETALS_COUNT_RANGE, () => {
     callObservers(resetObservers);
 });
 
-Page.Button.addObserver(controlId.DOWNLOAD_BUTTON, () => {
+Page.FileControl.addDownloadObserver(controlId.DOWNLOAD_BUTTON, () => {
     callObservers(downloadObservers);
 });
 

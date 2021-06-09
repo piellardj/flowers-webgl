@@ -140,7 +140,7 @@ const data = {
             title: "Output",
             controls: [
                 {
-                    type: Demopage.supportedControls.Button,
+                    type: Demopage.supportedControls.FileDownload,
                     id: "download-button-id",
                     label: "Download"
                 }
