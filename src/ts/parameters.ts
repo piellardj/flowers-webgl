@@ -33,6 +33,10 @@ function callObservers(observers: Observer[]) {
 const resetObservers: Observer[] = [];
 const downloadObservers: Observer[] = [];
 
+function callResetObservers(): void {
+    callObservers(resetObservers);
+}
+
 function getColor(id: string): Color {
     const rgb = Page.ColorPicker.getValue(id);
     return new Color(rgb.r, rgb.g, rgb.b);
@@ -134,13 +138,8 @@ function updatePetalColorsVisibility(): void {
 Page.Checkbox.addObserver(controlId.SINGLE_PETAL_COLOR_CHECKBOX, updatePetalColorsVisibility);
 updatePetalColorsVisibility();
 
-Page.Button.addObserver(controlId.RESET_BUTTON, () => {
-    callObservers(resetObservers);
-});
-
-Page.Range.addLazyObserver(controlId.PETALS_COUNT_RANGE, () => {
-    callObservers(resetObservers);
-});
+Page.Button.addObserver(controlId.RESET_BUTTON, callResetObservers);
+Page.Range.addLazyObserver(controlId.PETALS_COUNT_RANGE, callResetObservers);
 
 Page.FileControl.addDownloadObserver(controlId.DOWNLOAD_BUTTON, () => {
     callObservers(downloadObservers);
