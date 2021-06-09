@@ -140,6 +140,7 @@ updatePetalColorsVisibility();
 
 Page.Button.addObserver(controlId.RESET_BUTTON, callResetObservers);
 Page.Range.addLazyObserver(controlId.PETALS_COUNT_RANGE, callResetObservers);
+Page.Canvas.Observers.canvasResize.push(callResetObservers);
 
 Page.FileControl.addDownloadObserver(controlId.DOWNLOAD_BUTTON, () => {
     callObservers(downloadObservers);
