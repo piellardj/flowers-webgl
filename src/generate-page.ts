@@ -11,6 +11,10 @@ const data = {
         "The stems are modelized as weightless ropes and animated with Verlet integration."
     ],
     githubProjectName: "flowers-webgl",
+    readme: {
+        filepath: path.join(__dirname, "..", "README.md"),
+        branchName: "main"
+    },
     additionalLinks: [],
     scriptFiles: [
         "script/main.min.js"
