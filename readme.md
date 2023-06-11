@@ -5,9 +5,9 @@ This is project paints a flower field in a naive style. Over time, each flower l
 
 The stems are modelized as weightless ropes and animated with Verlet integration. The mouse can be used to interact with the flowers.
 
-
-
 See it live [here](https://piellardj.github.io/flowers-webgl/?page%3Acanvas%3Afullscreen=true).
+
+[![Donate](https://raw.githubusercontent.com/piellardj/piellardj.github.io/master/images/readme/donate-paypal.svg)](https://www.paypal.com/donate/?hosted_button_id=AF7H7GEJTL95E)
 
 ![Screenshot](src/readme/screenshot-1.png)
 
